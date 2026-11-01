@@ -56,6 +56,11 @@ def draw_world(ctx, st, t):
         ctx.arc(0, 0, 150, 0, 2 * math.pi)
         ctx.fill()
         ctx.restore()
+    if st.get('no_char'):
+        if K:
+            rig.draw_cat(ctx, K, t)
+        ctx.restore()
+        return
     behind = K and K.get('layer') == 'floor_back'
     if behind:
         rig.draw_cat(ctx, K, t)

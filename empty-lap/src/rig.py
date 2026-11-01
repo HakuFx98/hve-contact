@@ -199,8 +199,8 @@ def char_geom(C):
     G['head_ang'] = a
     G['head'] = (G['neck'][0] + (-33 * math.cos(a) + 232 * math.sin(a)),
                  G['neck'][1] + (-33 * math.sin(a) - 232 * math.cos(a)))
-    G['sh_near'] = ub(C, (-62, -320 - 3 * b - 8 * sigh))
-    G['sh_far'] = ub(C, (78, -330 - 3 * b - 8 * sigh))
+    G['sh_near'] = ub(C, (-96, -318 - 3 * b - 8 * sigh))
+    G['sh_far'] = ub(C, (44, -338 - 3 * b - 8 * sigh))
     return G
 
 
@@ -360,20 +360,115 @@ def draw_legs(ctx, C, t):
     tube(ctx, quad_pts((650, 1440), (520, 1438), (knee[0] + 8, knee[1] - 6), 10), 128)
 
 
-def draw_arm(ctx, s, hand, bow, w, hr, fill=WHITE, t=0.0, mitten=0.0, hand_ang=None):
-    """Soft rubber-hose arm (as in the reference): a gently bowed tube."""
+def _offset_poly(pts, widths, extra=0.0):
+    """Closed outline polygon around a centreline with per-point half-widths."""
+    left, right = [], []
+    n = len(pts)
+    for i in range(n):
+        a = pts[max(0, i - 1)]
+        b = pts[min(n - 1, i + 1)]
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        d = math.hypot(dx, dy) or 1.0
+        nx, ny = -dy / d, dx / d
+        w = widths[i] / 2 + extra
+        left.append((pts[i][0] + nx * w, pts[i][1] + ny * w))
+        right.append((pts[i][0] - nx * w, pts[i][1] - ny * w))
+    # round caps (sweep from one side to the other through the tube's end)
+    def cap(c, w, a_start):
+        return [(c[0] + w * math.cos(a_start - math.pi * k / 8), c[1] + w * math.sin(a_start - math.pi * k / 8))
+                for k in range(1, 8)]
+    e0, e1 = pts[0], pts[-1]
+    aL1 = math.atan2(left[-1][1] - e1[1], left[-1][0] - e1[0])
+    aR0 = math.atan2(right[0][1] - e0[1], right[0][0] - e0[0])
+    return left + cap(e1, widths[-1] / 2 + extra, aL1) + right[::-1] + cap(e0, widths[0] / 2 + extra, aR0)
+
+
+def mitten_pts(p, ang, hr, style='rest', thumb=1, t=0.0, seed=0.0):
+    """Soft mitten hand: a rounded oval pushed forward from the wrist, with a
+    small thumb nub. style: rest | cup | curl | grip | nub"""
+    if style == 'nub':
+        return ellipse_pts(p[0], p[1], hr * 0.95, hr * 0.85, ang, seed=seed, t=t, amp=0.3, n=36), None
+    L = {'rest': 1.25, 'cup': 1.15, 'curl': 1.05, 'grip': 0.95}.get(style, 1.2)
+    Wd = {'rest': 0.95, 'cup': 1.05, 'curl': 1.12, 'grip': 1.0}.get(style, 1.0)
+    cx, cy = p[0] + math.cos(ang) * hr * 0.55, p[1] + math.sin(ang) * hr * 0.55
+
+    def sh(th, x, y):
+        # flatter at the wrist end, rounder at the fingertips
+        k = 1.0 if math.cos(th) > 0 else 0.86
+        return x * k, y
+    pts = ellipse_pts(cx, cy, hr * L, hr * Wd, ang, seed=seed, t=t, amp=0.4, n=48, shape=sh)
+    tb = None
+    if style in ('rest', 'cup', 'grip'):
+        ta = ang + thumb * 1.25
+        tb = (p[0] + math.cos(ang) * hr * 0.35 + math.cos(ta) * hr * 0.95,
+              p[1] + math.sin(ang) * hr * 0.35 + math.sin(ta) * hr * 0.95, hr * 0.42)
+    return pts, tb
+
+
+def draw_arm(ctx, s, hand, bow, w, hr, fill=WHITE, t=0.0, mitten=0.0, hand_ang=None,
+             style='rest', thumb=1, blend=0.35, taper=0.78, seed=0.0):
+    """Arm + mitten drawn as ONE soft silhouette (as in the reference): the arm
+    grows out of the body with no outline at the shoulder, tapers slightly, and
+    flows into the mitten with no seam at the wrist."""
     p = hand
     dx, dy = p[0] - s[0], p[1] - s[1]
     d = max(math.hypot(dx, dy), 1e-3)
     nx, ny = -dy / d, dx / d
     m = ((s[0] + p[0]) / 2 + nx * bow * d, (s[1] + p[1]) / 2 + ny * bow * d)
-    pts = quad_pts(s, m, p, 20)
-    tube(ctx, pts, w, fill=fill, start_ink=5)
+    pts = quad_pts(s, m, p, 24)
+    widths = [w * (1 - (1 - taper) * (i / (len(pts) - 1))) for i in range(len(pts))]
     if hand_ang is None:
-        hand_ang = math.atan2(p[1] - pts[-3][1], p[0] - pts[-3][0])
-    hp = ellipse_pts(p[0], p[1], hr * (1 + 0.25 * mitten), hr * (1 - 0.1 * mitten), hand_ang,
-                     seed=hr, t=t, amp=0.4, n=40)
-    shape(ctx, hp, fill=fill)
+        hand_ang = math.atan2(p[1] - pts[-4][1], p[0] - pts[-4][0])
+    hp, tb = mitten_pts(p, hand_ang, hr, style, thumb, t, seed)
+    k0 = int(len(pts) * blend)          # outline starts here (shoulder blends into body)
+    body = _offset_poly(pts, widths)
+    ink_arm = _offset_poly(pts[k0:], widths[k0:], LW) if k0 < len(pts) - 2 else None
+
+    def blob(poly, extra_r=0.0):
+        path(ctx, poly)
+        ctx.fill()
+
+    def dil(ptsl, e):
+        cx = sum(x for x, _ in ptsl) / len(ptsl)
+        cy = sum(y for _, y in ptsl) / len(ptsl)
+        out = []
+        for x, y in ptsl:
+            vx, vy = x - cx, y - cy
+            r = math.hypot(vx, vy) or 1.0
+            out.append((x + vx / r * e, y + vy / r * e))
+        return out
+    # shadow
+    if STYLE['shadows']:
+        ctx.set_source_rgb(*GRAY)
+        for poly in (body[len(body) // 6:], hp):
+            path(ctx, [(x + SH[0], y + SH[1]) for x, y in poly])
+            ctx.fill()
+    # ink pass (outer contour only)
+    ctx.set_source_rgb(*INK)
+    if ink_arm:
+        blob(ink_arm)
+    blob(dil(hp, LW))
+    if tb:
+        ctx.arc(tb[0], tb[1], tb[2] + LW, 0, 2 * math.pi)
+        ctx.fill()
+    # fill pass
+    ctx.set_source_rgb(*fill)
+    if tb:
+        ctx.arc(tb[0], tb[1], tb[2], 0, 2 * math.pi)
+        ctx.fill()
+    blob(body)
+    blob(hp)
+    # little finger-fold line on curled / cupped hands (reference detail)
+    if style in ('curl', 'cup'):
+        fa = hand_ang + thumb * 0.9
+        c = (p[0] + math.cos(hand_ang) * hr * 0.75, p[1] + math.sin(hand_ang) * hr * 0.75)
+        a0 = fa + math.pi * 0.55
+        ctx.set_source_rgb(*INK)
+        ctx.set_line_width(3.0)
+        ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+        r = hr * 0.55
+        ctx.arc(c[0] + math.cos(fa) * r * 0.2, c[1] + math.sin(fa) * r * 0.2, r, a0, a0 + 1.1)
+        ctx.stroke()
     return p
 
 
@@ -381,14 +476,17 @@ def draw_character_back(ctx, C, G, t):
     """Box-side parts: torso, legs, far arm."""
     draw_torso(ctx, C, G, t)
     draw_legs(ctx, C, t)
-    G['far_hand'] = draw_arm(ctx, G['sh_far'], C.get('far_hand', (790, 1405)),
-                             C.get('far_bow', -0.10), 42, 19, t=t)
+    G['far_hand'] = draw_arm(ctx, G['sh_far'], C.get('far_hand', (768, 1414)),
+                             C.get('far_bow', -0.05), 54, C.get('far_hr', 21), t=t,
+                             style=C.get('far_style', 'nub'), thumb=-1, blend=0.55, taper=0.62,
+                             hand_ang=C.get('far_hand_ang'), seed=3)
 
 
 def draw_character_front(ctx, C, G, t):
     G['near_hand'] = draw_arm(ctx, G['sh_near'], C.get('near_hand', (585, 1285)),
-                              C.get('near_bow', 0.12), 52, 32, t=t, mitten=0.6,
-                              hand_ang=C.get('near_hand_ang'))
+                              C.get('near_bow', 0.12), 74, C.get('near_hr', 40), t=t,
+                              hand_ang=C.get('near_hand_ang'), style=C.get('near_style', 'rest'),
+                              thumb=C.get('near_thumb', 1), blend=0.30, taper=0.80, seed=5)
     draw_head(ctx, C, G, t)
 
 
@@ -461,8 +559,11 @@ def draw_cat(ctx, K, t):
         hx = legs[name][0]
         if legL < 4 and jp < 0.05 and dg < 0.05:
             return
-        tube(ctx, [(hx, hip_y - 10), (fx, fy - 13)], 34, fill=fill, shadow=near)
-        shape(ctx, ellipse_pts(fx + 4, fy - 12, 20, 13, n=30, amp=0.3), fill=fill, shadow=False)
+        # short soft stub; the rounded end is the paw (top hidden under the body)
+        tube(ctx, [(hx, hip_y - 30), (fx + 2, fy - 21)], 42, fill=fill, shadow=near)
+        if near:
+            line(ctx, [(fx - 3, fy - 4), (fx - 3, fy - 11)], lw=2.6)
+            line(ctx, [(fx + 7, fy - 4), (fx + 7, fy - 11)], lw=2.6)
 
     # tail
     tw = K.get('tail_wrap', curl)
@@ -487,6 +588,8 @@ def draw_cat(ctx, K, t):
     draw_leg('ff', FARW)
     draw_leg('fb', FARW)
 
+    draw_leg('nf', WHITE)
+    draw_leg('nb', WHITE)
     body = ellipse_pts(cx, cy, rx, ry, 0.0, seed=7, t=t, amp=0.9)
     shape(ctx, body)
     # haunch line (reference: a curved hip/leg shape on the rear)
@@ -512,9 +615,10 @@ def draw_cat(ctx, K, t):
         ctx.arc(bx, by, 14, math.pi * 0.9, math.pi * 2.1)
         ctx.stroke()
 
-    draw_leg('nf', WHITE)
-    draw_leg('nb', WHITE)
 
+    if jp > 0.25 or dg > 0.25 or K.get('rot', 0.0) > 0.3:
+        draw_leg('nf', WHITE)       # reaching paws stay visible in the air
+        draw_leg('nb', WHITE)
     if tw >= 0.5:
         tube(ctx, tp, 32, shadow=True)
 

@@ -18,7 +18,7 @@ S1, S2, S3A, S3B, S3C, S4, S5, S6, S7, END = 0.0, 4.2, 13.0, 16.4, 19.75, 23.0, 
 # anchors (world units)
 LAP_CAT = (470.0, 1452.0)
 REST_N = (470.0, 1394.0)     # near hand resting on the lap
-REST_F = (790.0, 1405.0)     # far hand hanging at the side
+REST_F = (768.0, 1414.0)     # far hand hanging at the side
 ROOM_N = (606.0, 1236.0)     # near hand lifted to make room
 FLOOR = rig.FLOOR_Y
 LAUNCH_X = 215.0
