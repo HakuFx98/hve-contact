@@ -78,3 +78,10 @@ pip install pycairo numpy pillow   # ffmpeg with libx264 required
 ./build.sh
 ```
 Contact sheet of any moments: `cd src && python3 render.py sheet out.png 1.0 6.9 50.5`
+
+## QA report (final render)
+- File: 60.0 s · 1080×1920 · H.264 High · 30 fps (1800 frames) · AAC-LC 256 kb/s 48 kHz stereo · -16.6 LUFS integrated.
+- Character match: compared side by side against the reference at the reference pose (see the S2 ending). Proportions, line weight, gray offset shadow, low dot eyes with blue drops, and the cat's ^ ^ face and claw ticks all match.
+- Motion: every shot has character animation (no static holds; even "silence" keeps breathing, blinks and micro head moves). Checked on contact sheets at 2 s intervals: `qa/contact_sheet_every2s.png`.
+- Sync: SFX are generated from the animation data (gait → steps, purr → purr, breath → breath, hand speed → fabric); scripted hits are keyed to the same times as the picture. Level map with story beats: `qa/audio_levels.png`.
+- **Not done:** listening playback. This environment has no audio output, so the mix was checked by measurement (loudness, level-over-time against beats), not by ear. Please do a headphone pass before publishing.
