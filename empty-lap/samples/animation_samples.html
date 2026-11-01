@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="./gsap.min.js"></script>
+<style>
+  :root { --ink:#222226; --white:#fbfbfa; --gray:#adadb0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1080px; height:1920px; overflow:hidden; background:#030304; }
+  #root { position:relative; width:1080px; height:1920px; overflow:hidden; background:#030304; }
+  svg { position:absolute; left:0; top:0; }
+  .ink { stroke:var(--ink); stroke-linecap:round; stroke-linejoin:round; fill:none; }
+  .wh  { fill:var(--white); stroke:none; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="14" data-width="1080" data-height="1920">
+<svg id="stage" class="clip" data-start="0" data-duration="14" data-track-index="0"
+     width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="drop" x="-30%" y="-30%" width="170%" height="170%">
+      <feOffset in="SourceAlpha" dx="13" dy="11" result="o"/>
+      <feFlood flood-color="#adadb0"/>
+      <feComposite in2="o" operator="in" result="sh"/>
+      <feMerge><feMergeNode in="sh"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="pool" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#2b241c" stop-opacity="1"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vig" cx="50%" cy="50%" r="60%">
+      <stop offset="0.7" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
+    </radialGradient>
+    <!-- ink on the near arm fades out toward the shoulder so the arm grows out of the torso -->
+    <linearGradient id="fadeG" gradientUnits="userSpaceOnUse" x1="662" y1="1166" x2="590" y2="1262">
+      <stop offset="0" stop-color="#000"/><stop offset="0.42" stop-color="#000"/><stop offset="0.9" stop-color="#fff"/>
+    </linearGradient>
+    <mask id="armInkMask" maskUnits="userSpaceOnUse" x="0" y="900" width="1080" height="800">
+      <rect x="0" y="900" width="1080" height="800" fill="url(#fadeG)"/>
+    </mask>
+  </defs>
+
+  <rect width="1080" height="1920" fill="#030304"/>
+
+  <!-- camera -->
+  <g id="cam" transform="translate(-151 -622) scale(1.26)">
+    <ellipse cx="590" cy="1330" rx="520" ry="520" fill="url(#pool)"/>
+    <line x1="-400" x2="1600" y1="1692" y2="1692" stroke="#fff" stroke-opacity="0.05" stroke-width="2"/>
+    <ellipse cx="700" cy="1694" rx="330" ry="22" fill="#000" fill-opacity="0.5"/>
+
+    <!-- stool -->
+    <g filter="url(#drop)">
+      <rect x="548" y="1513" width="357" height="175" rx="16" class="wh"/>
+      <rect x="548" y="1513" width="357" height="175" rx="16" class="ink" stroke-width="5"/>
+    </g>
+    <g id="bell" transform="translate(850 1491)">
+      <ellipse cx="-6" cy="12" rx="34" ry="10" class="ink" stroke-width="7"/>
+      <ellipse cx="-6" cy="12" rx="34" ry="10" fill="none" stroke="#8e939c" stroke-width="2"/>
+      <circle r="13" fill="#eeece2" stroke="#222226" stroke-width="3.5"/>
+      <path d="M-7 2 H7" class="ink" stroke-width="2.6"/><circle cy="6" r="2.4" fill="#222226"/>
+    </g>
+
+    <g id="torsoG" filter="url(#drop)">
+      <ellipse cx="637" cy="1256" rx="122" ry="236" transform="rotate(-3.4 637 1256)" class="wh"/>
+      <ellipse cx="637" cy="1256" rx="122" ry="236" transform="rotate(-3.4 637 1256)" class="ink" stroke-width="5"/>
+    </g>
+    <!-- far arm: only a small nub peeks out at the back edge of the torso -->
+    <g filter="url(#drop)">
+      <path d="M730 1330 Q744 1380 748 1415" class="ink" stroke-width="64"/>
+      <path d="M730 1330 Q744 1380 748 1415" fill="none" stroke="#fbfbfa" stroke-width="54" stroke-linecap="round"/>
+    </g>
+
+    <!-- legs -->
+    <g id="legsG" filter="url(#drop)">
+      <path d="M462 1478 L470 1660" class="ink" stroke-width="100"/>
+      <path d="M462 1478 L470 1660" fill="none" stroke="#fbfbfa" stroke-width="90" stroke-linecap="round"/>
+      <path d="M390 1472 L394 1658" class="ink" stroke-width="104"/>
+      <path d="M390 1472 L394 1658" fill="none" stroke="#fbfbfa" stroke-width="94" stroke-linecap="round"/>
+      <path d="M700 1440 Q540 1436 400 1462" class="ink" stroke-width="138"/>
+      <path d="M700 1440 Q540 1436 400 1462" fill="none" stroke="#fbfbfa" stroke-width="128" stroke-linecap="round"/>
+    </g>
+
+    <!-- running cat (standing pose) for the jump sample -->
+    <ellipse id="catSh" cx="0" cy="0" rx="140" ry="14" fill="#000" fill-opacity="0.5"/>
+    <g id="catRun" opacity="0">
+      <g id="rTail"><g filter="url(#drop)">
+        <path d="M-116 -124 C-168 -130 -176 -190 -146 -228" class="ink" stroke-width="44"/>
+        <path d="M-116 -124 C-168 -130 -176 -190 -146 -228" fill="none" stroke="#fbfbfa" stroke-width="34" stroke-linecap="round"/></g></g>
+      <g id="rL3"><path d="M-92 -84 L-92 -14" class="ink" stroke-width="48"/><path d="M-92 -84 L-92 -14" fill="none" stroke="#ececec" stroke-width="38" stroke-linecap="round"/></g>
+      <g id="rL1"><path d="M92 -84 L92 -14" class="ink" stroke-width="48"/><path d="M92 -84 L92 -14" fill="none" stroke="#ececec" stroke-width="38" stroke-linecap="round"/></g>
+      <g filter="url(#drop)"><ellipse cx="0" cy="-118" rx="126" ry="88" class="wh"/><ellipse cx="0" cy="-118" rx="126" ry="88" class="ink" stroke-width="5"/></g>
+      <g id="rL4"><path d="M-62 -84 L-62 -14" class="ink" stroke-width="48"/><path d="M-62 -84 L-62 -14" fill="none" stroke="#fbfbfa" stroke-width="38" stroke-linecap="round"/><path d="M-70 -12 v-9 M-62 -12 v-10 M-54 -12 v-9" class="ink" stroke-width="3"/></g>
+      <g id="rL2"><path d="M62 -84 L62 -14" class="ink" stroke-width="48"/><path d="M62 -84 L62 -14" fill="none" stroke="#fbfbfa" stroke-width="38" stroke-linecap="round"/><path d="M54 -12 v-9 M62 -12 v-10 M70 -12 v-9" class="ink" stroke-width="3"/></g>
+      <g id="rHead" transform="translate(112 -150)">
+        <g filter="url(#drop)">
+          <path d="M-88 -34 L-104 -112 L-34 -78 Z" class="wh"/><path d="M-88 -34 L-104 -112 L-34 -78 Z" class="ink" stroke-width="4.5"/>
+          <path d="M88 -34 L104 -112 L34 -78 Z" class="wh"/><path d="M88 -34 L104 -112 L34 -78 Z" class="ink" stroke-width="4.5"/>
+          <ellipse rx="98" ry="88" class="wh"/><ellipse rx="98" ry="88" class="ink" stroke-width="5"/></g>
+        <path d="M-84 -58 L-92 -88 L-62 -72" class="ink" stroke-width="3"/><path d="M84 -58 L92 -88 L62 -72" class="ink" stroke-width="3"/>
+        <circle cx="-4" cy="8" r="8.5" fill="#101014"/><circle cx="-6.5" cy="5" r="2.6" fill="#fff"/>
+        <circle cx="42" cy="8" r="8.5" fill="#101014"/><circle cx="39.5" cy="5" r="2.6" fill="#fff"/>
+        <circle cx="19" cy="22" r="3.4" fill="#222226"/>
+        <path d="M5 29 Q12 39 19 27 Q26 39 33 29" class="ink" stroke-width="3.6"/>
+        <path d="M-52 62 Q14 94 72 56" class="ink" stroke-width="3.6"/>
+        <g transform="translate(10 98)"><circle r="12" fill="#eeece2" stroke="#222226" stroke-width="3.2"/><path d="M-6 1 H6" class="ink" stroke-width="2.4"/><circle cy="5" r="2.2" fill="#222226"/></g>
+      </g>
+    </g>
+
+    <!-- cat lying on the lap -->
+    <g id="cat">
+      <g id="catTail"><g filter="url(#drop)">
+        <path d="M346 1352 C296 1338 280 1280 318 1228" class="ink" stroke-width="44"/>
+        <path d="M346 1352 C296 1338 280 1280 318 1228" fill="none" stroke="#fbfbfa" stroke-width="34" stroke-linecap="round"/>
+      </g></g>
+      <g id="catBody" filter="url(#drop)">
+        <ellipse cx="470" cy="1346" rx="144" ry="114" class="wh"/>
+        <ellipse cx="470" cy="1346" rx="144" ry="114" class="ink" stroke-width="5"/>
+        <path d="M361 1346 A49 46 0 0 1 458 1346" class="ink" stroke-width="4"/>
+        <path d="M376 1398 a16 14 0 0 1 22 -4" class="ink" stroke-width="4"/>
+      </g>
+      <g id="catPaws">
+        <g filter="url(#drop)">
+          <ellipse cx="559" cy="1452" rx="26" ry="19" class="wh"/><ellipse cx="559" cy="1452" rx="26" ry="19" class="ink" stroke-width="4.5"/>
+          <ellipse cx="640" cy="1452" rx="26" ry="19" class="wh"/><ellipse cx="640" cy="1452" rx="26" ry="19" class="ink" stroke-width="4.5"/>
+        </g>
+        <path d="M550 1465 l-3 12 M559 1468 l0 12 M568 1465 l3 12 M631 1465 l-3 12 M640 1468 l0 12 M649 1465 l3 12" class="ink" stroke-width="3.2"/>
+      </g>
+      <g id="catHead">
+        <g filter="url(#drop)">
+          <path d="M-88 -34 L-104 -112 L-34 -78 Z" class="wh"/><path d="M-88 -34 L-104 -112 L-34 -78 Z" class="ink" stroke-width="4.5"/>
+          <path d="M88 -34 L104 -112 L34 -78 Z" class="wh"/><path d="M88 -34 L104 -112 L34 -78 Z" class="ink" stroke-width="4.5"/>
+          <ellipse cx="0" cy="0" rx="98" ry="88" class="wh"/><ellipse cx="0" cy="0" rx="98" ry="88" class="ink" stroke-width="5"/>
+        </g>
+        <path d="M-84 -58 L-92 -88 L-62 -72" class="ink" stroke-width="3"/><path d="M84 -58 L92 -88 L62 -72" class="ink" stroke-width="3"/>
+        <path d="M-30 12 Q-14 -4 2 12" class="ink" stroke-width="4.6"/>
+        <path d="M30 12 Q46 -4 62 12" class="ink" stroke-width="4.6"/>
+        <circle cx="16" cy="20" r="3.4" fill="#222226"/>
+        <path d="M2 27 Q9 37 16 25 Q23 37 30 27" class="ink" stroke-width="3.6"/>
+        <path d="M-60 62 Q10 92 70 58" class="ink" stroke-width="3.6"/>
+        <g transform="translate(8 96)"><circle r="12" fill="#eeece2" stroke="#222226" stroke-width="3.2"/><path d="M-6 1 H6" class="ink" stroke-width="2.4"/><circle cy="5" r="2.2" fill="#222226"/></g>
+      </g>
+    </g>
+
+    <!-- NEAR ARM: ONE smooth tapered shape (redrawn every frame) + a drawn mitten -->
+    <g id="armG">
+      <g mask="url(#armInkMask)">
+        <path id="armInk" d="" class="ink" stroke-width="10"/>
+      </g>
+      <g id="handInk">
+        <path d="M-34 -8 C-42 30 -36 72 -12 92 C10 106 40 98 46 72 C52 44 42 8 34 -8 Z" class="ink" stroke-width="10"/>
+        <path d="M32 8 C62 10 78 32 70 50 C64 58 46 54 38 44 Z" class="ink" stroke-width="10"/>
+      </g>
+      <path id="armFill" d="" class="wh"/>
+      <g id="handFill" filter="url(#drop)">
+        <path d="M-34 -8 C-42 30 -36 72 -12 92 C10 106 40 98 46 72 C52 44 42 8 34 -8 Z" class="wh"/>
+        <path d="M32 8 C62 10 78 32 70 50 C64 58 46 54 38 44 Z" class="wh"/>
+        <path d="M18 58 C27 64 29 75 25 86" class="ink" stroke-width="3.8"/>
+        <path d="M36 24 C44 30 55 32 61 38" class="ink" stroke-width="3.4"/>
+      </g>
+    </g>
+
+    <!-- head -->
+    <g id="headG">
+      <circle id="rim" cx="565" cy="919" r="224" fill="#adadb0"/>
+      <circle cx="552" cy="928" r="224" class="wh"/>
+      <circle cx="552" cy="928" r="224" class="ink" stroke-width="5"/>
+      <g id="eyeL" transform="translate(412 1065)"><circle r="14.5" fill="#101014"/><circle cx="-4.5" cy="-5" r="3.6" fill="#fff"/></g>
+      <g id="eyeR" transform="translate(540 1065)"><circle r="14.5" fill="#101014"/><circle cx="-4.5" cy="-5" r="3.6" fill="#fff"/></g>
+      <path id="tearL" d="M402 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
+      <path id="tearR" d="M538 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
+      <path id="tear" d="M0 -16 C7 -5 12 3 10 9 C7 16 -7 16 -10 9 C-12 3 -7 -5 0 -16Z" fill="#6aa8f5" stroke="#2b5aa8" stroke-width="2" opacity="0"/>
+      <path id="mouth" d="M451 1090 Q471 1112 491 1090" class="ink" stroke-width="4.6"/>
+    </g>
+  </g>
+
+  <rect width="1080" height="1920" fill="url(#vig)"/>
+  <text id="lab0" x="540" y="110" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="38" font-weight="500" fill="#f2f2f0" opacity="0" style="paint-order:stroke" stroke="#000" stroke-opacity="0.55" stroke-width="8">SAMPLE 1 · Feelings: smile → worry → tear</text><text id="lab1" x="540" y="110" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="38" font-weight="500" fill="#f2f2f0" opacity="0" style="paint-order:stroke" stroke="#000" stroke-opacity="0.55" stroke-width="8">SAMPLE 2 · Cat run, wiggle, jump, landing</text><text id="lab2" x="540" y="110" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="38" font-weight="500" fill="#f2f2f0" opacity="0" style="paint-order:stroke" stroke="#000" stroke-opacity="0.55" stroke-width="8">SAMPLE 3 · Hand gestures: pat, make room</text><text id="lab3" x="540" y="110" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="38" font-weight="500" fill="#f2f2f0" opacity="0" style="paint-order:stroke" stroke="#000" stroke-opacity="0.55" stroke-width="8">SAMPLE 4 · Camera pull-away</text>
+  <rect id="fade" width="1080" height="1920" fill="#000" opacity="0"/>
+</svg>
+</div>
+
+<script>
+  const tl = gsap.timeline({ paused: true });
+  const FPS = 30, DUR = 14;
+  const S = { x: 632, y: 1190 };
+  const sm = (a) => { a = Math.max(0, Math.min(1, a)); return a * a * (3 - 2 * a); };
+  const mixv = (a, b, u) => a + (b - a) * u;
+  const cl = (a, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, a));
+  function kf(t, pts) {
+    if (t <= pts[0][0]) return pts[0][1];
+    for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) return mixv(pts[i-1][1], pts[i][1], sm((t - pts[i-1][0]) / (pts[i][0] - pts[i-1][0])));
+    return pts[pts.length - 1][1];
+  }
+  function set(sel, attrs, t) { tl.set(sel, { attr: attrs }, t); }
+  const SEG = [0, 3.6, 7.6, 11.0, 14.0];
+
+  function strokeW(t0, t) {
+    const T = 1.5, p = (((t - t0) % T) + T) % T / T;
+    if (p < 0.72) { const q = sm(p / 0.72); return { x: 572 - 70 * q, y: 1282 + 10 * q }; }
+    const q = sm((p - 0.72) / 0.28);
+    return { x: 502 + 70 * q, y: 1292 - 26 * Math.sin(Math.PI * q) - 10 * q };
+  }
+  // ---- hand: wrist target, bow, roll
+  function hand(t) {
+    if (t < SEG[1]) {                                          // 1: rests on the lap, closes slowly when sad
+      const k = sm((t - 2.0) / 0.9);
+      return { x: mixv(560, 540, k), y: mixv(1340, 1352, k) + 2 * Math.sin(t * 1.5), bow: -0.2, roll: 4 };
+    }
+    if (t < SEG[2]) {                                          // 2: hold out for her, catch, then stroke
+      const u = t - SEG[1];
+      if (u < 1.9) { const k = sm(u / 0.5); return { x: mixv(540, 500, k), y: mixv(1352, 1264, k) + 4 * Math.sin(u * 5), bow: -0.18, roll: mixv(4, 30, k) }; }
+      if (u < 2.5) { const k = sm((u - 1.9) / 0.6); return { x: mixv(500, 572, k), y: mixv(1264, 1282, k), bow: -0.16, roll: mixv(30, 8, k) }; }
+      const w = strokeW(SEG[1] + 2.5, t); return { x: w.x, y: w.y, bow: -0.16, roll: 8 };
+    }
+    if (t < SEG[3]) {                                          // 3: pat, then make room
+      const u = t - SEG[2];
+      if (u < 1.9) { const ph = (u % 0.6) / 0.6, lift = Math.sin(Math.PI * ph) ** 0.8, k = sm(u / 0.5);
+        return { x: mixv(540, 520, k), y: mixv(1296, 1352, k) - 34 * lift * k, bow: -0.2, roll: 4 }; }
+      const k = sm((u - 1.9) / 0.6);
+      return { x: mixv(520, 470, k), y: mixv(1352, 1262, k) + 5 * Math.sin((u - 1.9) * 4.5) * k, bow: -0.18, roll: mixv(4, 34, k) };
+    }
+    const u = t - SEG[3], k = sm(u / 1.0);                      // 4: cups the empty space
+    return { x: mixv(540, 505, k), y: mixv(1352, 1326, k) + 3 * Math.sin(u * 1.4), bow: -0.2, roll: mixv(4, 14, k) };
+  }
+  function buildArm(W, bow) {
+    const dx = W.x - S.x, dy = W.y - S.y, d = Math.hypot(dx, dy), nx = -dy / d, ny = dx / d;
+    const C = { x: (S.x + W.x) / 2 + nx * bow * d, y: (S.y + W.y) / 2 + ny * bow * d };
+    const N = 22, L = [], R = []; let tan = { x: 0, y: 1 };
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, v = 1 - u;
+      const px = v*v*S.x + 2*v*u*C.x + u*u*W.x, py = v*v*S.y + 2*v*u*C.y + u*u*W.y;
+      let tx = 2*v*(C.x - S.x) + 2*u*(W.x - C.x), ty = 2*v*(C.y - S.y) + 2*u*(W.y - C.y);
+      const n_ = Math.hypot(tx, ty) || 1; tx /= n_; ty /= n_; tan = { x: tx, y: ty };
+      const w = mixv(84, 62, Math.pow(u, 0.8)) / 2;
+      L.push([px - ty * w, py + tx * w]); R.push([px + ty * w, py - tx * w]);
+    }
+    const f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    let d_ = 'M' + f(L[0]); for (let i = 1; i <= N; i++) d_ += ' L' + f(L[i]); for (let i = N; i >= 0; i--) d_ += ' L' + f(R[i]);
+    return { d: d_ + ' Z', ang: Math.atan2(-tan.x, tan.y) * 180 / Math.PI };
+  }
+
+  // ---- face
+  function face(t) {
+    if (t < SEG[1]) {
+      const k1 = sm((t - 1.2) / 0.5), k2 = sm((t - 2.0) / 0.8);
+      return { dx: -14 * k1, dy: 10 * k2, es: 1 + 0.12 * k1 - 0.1 * k2, mc: mixv(mixv(22, 6, k1), -22, k2), my: 14 * k2 };
+    }
+    if (t < SEG[2]) { const u = t - SEG[1]; const k = sm((u - 1.8) / 0.6);
+      return { dx: -10, dy: mixv(2, 12, k), es: mixv(1.1, 1.0, k), mc: mixv(8, 24, k), my: 0 }; }
+    if (t < SEG[3]) { const u = t - SEG[2], k = sm((u - 1.9) / 0.6);
+      return { dx: mixv(-4, -14, k), dy: mixv(14, 0, k), es: mixv(1, 1.12, k), mc: mixv(-12, 4, k), my: mixv(8, 0, k) }; }
+    const u = t - SEG[3], k = sm(u / 0.8);
+    return { dx: -6 * k, dy: 14 * k, es: 1 - 0.08 * k, mc: mixv(4, -24, k), my: 14 * k };
+  }
+  function tearAt(t) {          // returns {o, y, s} in head space
+    const a = (t0, t1) => cl((t - t0) / (t1 - t0));
+    if (t >= SEG[0] && t < SEG[1]) { const g = a(2.3, 2.7), r = a(2.7, 3.55);
+      return { o: g < 1 ? g : 1 - sm((r - 0.85) / 0.15), y: 1098 + 52 * Math.pow(r, 1.5), s: 0.35 + 0.65 * g }; }
+    if (t >= SEG[3]) { const u = t - SEG[3]; const g = a(0.8, 1.3), r = a(1.4, 2.8);
+      return { o: g < 1 ? g : 1 - sm((r - 0.85) / 0.15), y: 1098 + 52 * Math.pow(r, 1.5), s: 0.35 + 0.65 * g }; }
+    return { o: 0, y: 1098, s: 0.4 };
+  }
+
+  // ---- running cat (sample 2)
+  const FL = 1690, LAP = { x: 470, y: 1464 };
+  function runCat(u) {
+    let x = 470, y = FL, rot = 0, sx = 1, sy = 1, gait = 0, ph = u * 17, jump = 0, vis = 1;
+    if (u < 1.15) { const q = sm(u / 1.15); x = mixv(-150, 250, 1 - (1 - u / 1.15) ** 2); gait = 1 - sm((u - 0.85) / 0.3); y -= 10 * Math.abs(Math.sin(ph)) * gait; }
+    else if (u < 1.55) { x = 250 + 4 * Math.sin(u * 42); const c = sm((u - 1.15) / 0.25); sy = 1 - 0.14 * c; sx = 1 + 0.07 * c; rot = -3 * c; }
+    else if (u < 2.05) { const p = (u - 1.55) / 0.5; x = 250 + 220 * p; y = FL + (LAP.y - FL) * p - 120 * 4 * p * (1 - p); jump = Math.sin(Math.PI * Math.min(1, p * 1.1)) ** 0.6;
+      rot = -20 * Math.sin(Math.PI * p) + 14 * p; sy = 1 + 0.2 * Math.sin(Math.PI * p); sx = 1 - 0.1 * Math.sin(Math.PI * p); }
+    else vis = 0;
+    return { x, y, rot, sx, sy, gait, ph, jump, vis };
+  }
+
+  for (let i = 0; i <= FPS * DUR; i++) {
+    const t = i / FPS;
+    const seg = t < SEG[1] ? 0 : t < SEG[2] ? 1 : t < SEG[3] ? 2 : 3;
+    // camera
+    let cam;
+    if (seg === 0) cam = [kf(t, [[0, 566], [3.6, 560]]), kf(t, [[0, 1150], [3.6, 1120]]), kf(t, [[0, 1.75], [3.6, 2.0]])];
+    else if (seg === 1) cam = [kf(t, [[SEG[1], 560], [SEG[2], 548]]), kf(t, [[SEG[1], 1380], [SEG[2], 1330]]), kf(t, [[SEG[1], 1.02], [SEG[2], 1.2]])];
+    else if (seg === 2) cam = [kf(t, [[SEG[2], 548], [SEG[3], 556]]), kf(t, [[SEG[2], 1290], [SEG[3], 1285]]), kf(t, [[SEG[2], 1.3], [SEG[3], 1.38]])];
+    else cam = [kf(t, [[SEG[3], 560], [SEG[4], 560]]), kf(t, [[SEG[3], 1300], [SEG[4], 1270]]), kf(t, [[SEG[3], 1.7], [SEG[3] + 1.0, 1.55], [SEG[4], 0.82]])];
+    set('#cam', { transform: `translate(${(540 - cam[0] * cam[2]).toFixed(2)} ${(960 - cam[1] * cam[2]).toFixed(2)}) scale(${cam[2].toFixed(4)})` }, t);
+
+    // arm + hand
+    const j = hand(t), A = buildArm({ x: j.x, y: j.y }, j.bow);
+    set('#armInk', { d: A.d }, t); set('#armFill', { d: A.d }, t);
+    const tr = `translate(${j.x.toFixed(1)} ${j.y.toFixed(1)}) rotate(${(A.ang + j.roll).toFixed(2)}) translate(0 -8)`;
+    set('#handInk', { transform: tr }, t); set('#handFill', { transform: tr }, t);
+
+    // body life
+    const b = Math.sin(t * Math.PI * 2 / 3.6);
+    set('#torsoG', { transform: `translate(0 ${(-2 * b).toFixed(2)})` }, t);
+    const F = face(t), tilt = -1.6 + 1.2 * Math.sin(t * 1.1) - 0.1 * F.dy;
+    set('#headG', { transform: `rotate(${tilt.toFixed(2)} 585 1160)` }, t);
+    const bt = [0.9, 5.1, 8.6, 12.4], bd = Math.min(...bt.map(x => Math.abs(t - x))), blink = bd < 0.09 ? 1 - bd / 0.09 : 0;
+    const sy = (1 - 0.9 * blink);
+    set('#eyeL', { transform: `translate(${(412 + F.dx).toFixed(1)} ${(1065 + F.dy).toFixed(1)}) scale(${(0.86 * F.es).toFixed(3)} ${(F.es * sy).toFixed(3)})` }, t);
+    set('#eyeR', { transform: `translate(${(540 + F.dx).toFixed(1)} ${(1065 + F.dy).toFixed(1)}) scale(${F.es.toFixed(3)} ${(F.es * sy).toFixed(3)})` }, t);
+    set('#tearL', { transform: `translate(${F.dx.toFixed(1)} ${F.dy.toFixed(1)})` }, t);
+    set('#tearR', { transform: `translate(${F.dx.toFixed(1)} ${F.dy.toFixed(1)})` }, t);
+    set('#mouth', { d: `M451 1090 Q471 ${(1090 + F.mc).toFixed(1)} 491 1090`, transform: `translate(${F.dx.toFixed(1)} ${(F.dy + F.my).toFixed(1)})` }, t);
+    const T = tearAt(t);
+    set('#tear', { opacity: T.o.toFixed(3), transform: `translate(${(547 + F.dx - 6 * (T.y - 1098) / 52).toFixed(1)} ${(T.y + F.dy).toFixed(1)}) scale(${T.s.toFixed(3)})` }, t);
+
+    // cat (lying) – only in sample 2 after landing
+    const u2 = t - SEG[1];
+    let lieO = 0, sqx = 1, sqy = 1;
+    if (seg === 1 && u2 >= 2.05) { lieO = 1; const d_ = u2 - 2.05; sqy = 1 - 0.16 * Math.exp(-d_ * 6) * Math.cos(d_ * 20); sqx = 1 / Math.sqrt(sqy); if (t > SEG[2] - 0.3) lieO = cl((SEG[2] - t) / 0.3); }
+    set('#cat', { opacity: lieO.toFixed(3), transform: `translate(470 1460) scale(${sqx.toFixed(4)} ${sqy.toFixed(4)}) translate(-470 -1460)` }, t);
+    const cb = Math.sin(t * Math.PI * 2 / 2.6);
+    set('#catBody', { transform: `translate(470 1460) scale(${(1 + 0.012 * cb).toFixed(4)} ${(1 + 0.03 * cb).toFixed(4)}) translate(-470 -1460)` }, t);
+    set('#catTail', { transform: `rotate(${(7 * Math.sin(t * 2.4 - 0.6)).toFixed(2)} 346 1352)` }, t);
+    set('#catHead', { transform: `translate(625 1317) rotate(${(4 + 2.5 * Math.sin(t * 4.2 + 0.5)).toFixed(2)})` }, t);
+
+    // running cat
+    const R = seg === 1 ? runCat(u2) : { vis: 0, x: -999, y: FL, rot: 0, sx: 1, sy: 1, gait: 0, ph: 0, jump: 0 };
+    set('#catRun', { opacity: R.vis, transform: `translate(${R.x.toFixed(1)} ${R.y.toFixed(1)}) rotate(${R.rot.toFixed(2)} 0 -118) scale(${R.sx.toFixed(3)} ${R.sy.toFixed(3)})` }, t);
+    const legs = [['rL1', 92, 0], ['rL2', 62, Math.PI], ['rL3', -92, Math.PI], ['rL4', -62, 0]];
+    for (const [id, hx, off] of legs) {
+      const front = hx > 0, sw = R.gait * 30 * Math.sin(R.ph + off), lift = R.gait * 12 * Math.max(0, Math.cos(R.ph + off));
+      const ja = (front ? 52 : -48) * R.jump;
+      set('#' + id, { transform: `translate(0 ${(-lift).toFixed(1)}) rotate(${(sw * (1 - R.jump) + ja).toFixed(1)} ${hx} -84)` }, t);
+    }
+    set('#rTail', { transform: `rotate(${(9 * Math.sin(t * 7) + 14 * R.jump).toFixed(1)} -116 -124)` }, t);
+    set('#rHead', { transform: `translate(112 ${(-150 + 3 * Math.sin(R.ph * 2)).toFixed(1)}) rotate(${(-6 * R.jump).toFixed(1)})` }, t);
+    const h = Math.max(0, FL - R.y), k = 1 / (1 + h / 170);
+    set('#catSh', { opacity: (R.vis ? 0.5 * k : 0).toFixed(3), transform: `translate(${R.x.toFixed(1)} 1694) scale(${(k * 0.95).toFixed(3)} 1)` }, t);
+
+    // labels + scene dips
+    for (let s_ = 0; s_ < 4; s_++) {
+      const a = t >= SEG[s_] + 0.15 && t < SEG[s_ + 1] - 0.3 ? 1 : 0;
+      const o = cl(Math.min((t - SEG[s_] - 0.1) / 0.3, (SEG[s_ + 1] - 0.3 - t) / 0.3));
+      set('#lab' + s_, { opacity: (a ? o : 0).toFixed(3) }, t);
+    }
+    let fd = 0;
+    for (const sb of [SEG[1], SEG[2], SEG[3]]) fd = Math.max(fd, cl(1 - Math.abs(t - sb) / 0.22));
+    fd = Math.max(fd, cl((t - 13.3) / 0.7));
+    set('#fade', { opacity: fd.toFixed(3) }, t);
+  }
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+  tl.seek(0);
+</script>
+</body>
+</html>
