@@ -199,8 +199,8 @@ def char_geom(C):
     G['head_ang'] = a
     G['head'] = (G['neck'][0] + (-33 * math.cos(a) + 232 * math.sin(a)),
                  G['neck'][1] + (-33 * math.sin(a) - 232 * math.cos(a)))
-    G['sh_near'] = ub(C, (-96, -318 - 3 * b - 8 * sigh))
-    G['sh_far'] = ub(C, (44, -338 - 3 * b - 8 * sigh))
+    G['sh_near'] = ub(C, (22, -300 - 3 * b - 8 * sigh))
+    G['sh_far'] = ub(C, (84, -318 - 3 * b - 8 * sigh))
     return G
 
 
@@ -484,7 +484,7 @@ def draw_character_back(ctx, C, G, t):
 
 def draw_character_front(ctx, C, G, t):
     G['near_hand'] = draw_arm(ctx, G['sh_near'], C.get('near_hand', (585, 1285)),
-                              C.get('near_bow', 0.12), 74, C.get('near_hr', 40), t=t,
+                              C.get('near_bow', -0.12), 74, C.get('near_hr', 40), t=t,
                               hand_ang=C.get('near_hand_ang'), style=C.get('near_style', 'rest'),
                               thumb=C.get('near_thumb', 1), blend=0.30, taper=0.80, seed=5)
     draw_head(ctx, C, G, t)

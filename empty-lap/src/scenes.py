@@ -69,7 +69,7 @@ def look(L, bell='box', **kw):
 def char_base(t, seed=1, rate=1 / 3.6):
     return dict(yaw=-0.40, pitch=0.0, mouth=0.6, near_hand=REST_N, far_hand=REST_F,
                 breath=TAU * t * rate, blink=blink_auto(t, seed), closed_style='soft',
-                near_bow=0.12, far_bow=-0.10)
+                near_bow=-0.12, far_bow=-0.10)
 
 
 def cat_base(t):
@@ -333,7 +333,7 @@ def s4(t):
         w = seg(u, 5.0, 5.75)
         C['near_hand'] = lerp(kf(u, [(5.0, ROOM_N), (5.5, (420, 1360))]), (chest[0] - 10, chest[1]), w)
         C['far_hand'] = lerp(REST_F, (belly[0] + 10, belly[1] + 18), w)
-        C['near_bow'] = 0.18
+        C['near_bow'] = -0.16
     elif u >= 7.3:
         hd, _, _, _ = rig.cat_head_world(K)
         sp = ((u - 8.6) % 2.4) / 2.4 if u > 8.6 else 0.0
@@ -435,7 +435,7 @@ def s7(t):
                            (2.6, (505, 1355)), (3.6, (508, 1338))])
     C['far_bow'] = kf(u, [(0, -0.10), (1.2, -0.16), (2.3, 0.10), (3.6, 0.22)])
     C['near_hand'] = kf(u, [(0, REST_N), (2.3, REST_N), (3.6, (446, 1342))])
-    C['near_bow'] = kf(u, [(2.3, 0.12), (3.6, 0.55)])
+    C['near_bow'] = kf(u, [(2.3, -0.12), (3.6, -0.20)])
     C['sigh'] = window(u, 2.8, 3.6, 0.4)
     eyes = kf(u, [(3.0, 0.0), (3.5, 1.0)])
     C['blink'] = max(C['blink'], eyes)
