@@ -19,7 +19,7 @@
 <svg id="stage" class="clip" data-start="0" data-duration="6" data-track-index="0"
      width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter id="drop" x="-20%" y="-20%" width="150%" height="150%">
+    <filter id="drop" x="-30%" y="-30%" width="170%" height="170%">
       <feOffset in="SourceAlpha" dx="13" dy="11" result="o"/>
       <feFlood flood-color="#adadb0"/>
       <feComposite in2="o" operator="in" result="sh"/>
@@ -30,12 +30,12 @@
       <stop offset="1" stop-color="#000" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="vig" cx="50%" cy="50%" r="60%">
-      <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000" stop-opacity="0.6"/>
+      <stop offset="0.7" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
     </radialGradient>
     <!-- ink on the near arm fades out toward the shoulder so the arm grows out of the torso -->
-    <linearGradient id="fadeG" gradientUnits="userSpaceOnUse" x1="672" y1="1166" x2="600" y2="1262">
-      <stop offset="0" stop-color="#000"/><stop offset="0.55" stop-color="#fff"/>
+    <linearGradient id="fadeG" gradientUnits="userSpaceOnUse" x1="662" y1="1166" x2="590" y2="1262">
+      <stop offset="0" stop-color="#000"/><stop offset="0.42" stop-color="#000"/><stop offset="0.9" stop-color="#fff"/>
     </linearGradient>
     <mask id="armInkMask" maskUnits="userSpaceOnUse" x="0" y="900" width="1080" height="800">
       <rect x="0" y="900" width="1080" height="800" fill="url(#fadeG)"/>
@@ -78,8 +78,8 @@
       <path d="M462 1478 L470 1660" fill="none" stroke="#fbfbfa" stroke-width="90" stroke-linecap="round"/>
       <path d="M390 1472 L394 1658" class="ink" stroke-width="104"/>
       <path d="M390 1472 L394 1658" fill="none" stroke="#fbfbfa" stroke-width="94" stroke-linecap="round"/>
-      <path d="M650 1440 Q520 1438 400 1462" class="ink" stroke-width="138"/>
-      <path d="M650 1440 Q520 1438 400 1462" fill="none" stroke="#fbfbfa" stroke-width="128" stroke-linecap="round"/>
+      <path d="M700 1440 Q540 1436 400 1462" class="ink" stroke-width="138"/>
+      <path d="M700 1440 Q540 1436 400 1462" fill="none" stroke="#fbfbfa" stroke-width="128" stroke-linecap="round"/>
     </g>
 
     <!-- cat lying on the lap -->
@@ -117,24 +117,22 @@
       </g>
     </g>
 
-    <!-- NEAR ARM: two bones + mitten, drawn in two passes (ink union, then white fill) -->
+    <!-- NEAR ARM: ONE smooth tapered shape (redrawn every frame) + a drawn mitten -->
     <g id="armG">
       <g mask="url(#armInkMask)">
-        <g id="uI"><path d="M-42 12 Q-42 -8 0 -8 Q42 -8 42 12 C41 50 34 92 31 118 A31 31 0 0 0 -31 118 C-34 92 -41 50 -42 12 Z" class="ink" stroke-width="10"/>
-          <g id="fI"><path d="M-31 0 C-30 40 -27 80 -26 104 A26 26 0 0 0 26 104 C27 80 30 40 31 0 Z" class="ink" stroke-width="10"/>
-            <g id="hI" transform="translate(0 104)">
-              <path d="M-32 -6 C-38 30 -34 70 -12 90 C8 104 38 96 44 70 C50 42 40 8 32 -6 Z" class="ink" stroke-width="10"/>
-              <path d="M30 6 C58 8 74 30 66 48 C60 56 44 52 36 42 Z" class="ink" stroke-width="10"/>
-            </g></g></g>
+        <path id="armInk" d="" class="ink" stroke-width="10"/>
       </g>
-      <g id="uF"><path d="M-42 12 Q-42 -8 0 -8 Q42 -8 42 12 C41 50 34 92 31 118 A31 31 0 0 0 -31 118 C-34 92 -41 50 -42 12 Z" class="wh"/>
-        <g id="fF"><path d="M-31 0 C-30 40 -27 80 -26 104 A26 26 0 0 0 26 104 C27 80 30 40 31 0 Z" class="wh"/>
-          <g id="hF" transform="translate(0 104)" filter="url(#drop)">
-            <path d="M-32 -6 C-38 30 -34 70 -12 90 C8 104 38 96 44 70 C50 42 40 8 32 -6 Z" class="wh"/>
-            <path d="M30 6 C58 8 74 30 66 48 C60 56 44 52 36 42 Z" class="wh"/>
-            <path d="M18 56 C26 62 28 72 24 82" class="ink" stroke-width="3.6"/>
-            <path d="M34 22 C42 28 52 30 58 36" class="ink" stroke-width="3.4"/>
-          </g></g></g>
+      <g id="handInk">
+        <path d="M-34 -8 C-42 30 -36 72 -12 92 C10 106 40 98 46 72 C52 44 42 8 34 -8 Z" class="ink" stroke-width="10"/>
+        <path d="M32 8 C62 10 78 32 70 50 C64 58 46 54 38 44 Z" class="ink" stroke-width="10"/>
+      </g>
+      <path id="armFill" d="" class="wh"/>
+      <g id="handFill" filter="url(#drop)">
+        <path d="M-34 -8 C-42 30 -36 72 -12 92 C10 106 40 98 46 72 C52 44 42 8 34 -8 Z" class="wh"/>
+        <path d="M32 8 C62 10 78 32 70 50 C64 58 46 54 38 44 Z" class="wh"/>
+        <path d="M18 58 C27 64 29 75 25 86" class="ink" stroke-width="3.8"/>
+        <path d="M36 24 C44 30 55 32 61 38" class="ink" stroke-width="3.4"/>
+      </g>
     </g>
 
     <!-- head -->
@@ -144,8 +142,8 @@
       <circle cx="552" cy="928" r="224" class="ink" stroke-width="5"/>
       <g id="eyeL" transform="translate(412 1065)"><circle r="14.5" fill="#101014"/><circle cx="-4.5" cy="-5" r="3.6" fill="#fff"/></g>
       <g id="eyeR" transform="translate(540 1065)"><circle r="14.5" fill="#101014"/><circle cx="-4.5" cy="-5" r="3.6" fill="#fff"/></g>
-      <path d="M402 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
-      <path d="M538 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
+      <path id="tearL" d="M402 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
+      <path id="tearR" d="M538 1086 q-10 16 0 26 q10 -4 10 -16 q-2 -8 -10 -10z" fill="#5c9ef2"/>
       <path id="mouth" d="M451 1090 Q471 1112 491 1090" class="ink" stroke-width="4.6"/>
     </g>
   </g>
@@ -157,62 +155,87 @@
 <script>
   const tl = gsap.timeline({ paused: true });
   const FPS = 30, DUR = 6;
-  const S = { x: 640, y: 1182 };        // near shoulder, at the BACK of the torso
-  const L1 = 118, L2 = 104;             // bone lengths
-  const sm = (a) => a * a * (3 - 2 * a);
-  const cl = (a, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, a));
-
-  function ik(wx, wy) {
-    const dx = wx - S.x, dy = wy - S.y;
-    let d = Math.hypot(dx, dy); const reach = L1 + L2 - 1;
-    const k = d > reach ? reach / d : 1;
-    d *= k;
-    const base = Math.atan2(dy, dx);
-    const A = Math.acos(cl((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d), -1, 1));
-    const e = [base + A, base - A].map(a => ({ x: S.x + L1 * Math.cos(a), y: S.y + L1 * Math.sin(a) }))
-                                  .sort((p, q) => q.y - p.y)[0];   // elbow hangs low/back
-    const w = { x: S.x + dx * k, y: S.y + dy * k };
-    return {
-      f1: Math.atan2(-(e.x - S.x), e.y - S.y) * 180 / Math.PI,
-      f2: Math.atan2(-(w.x - e.x), w.y - e.y) * 180 / Math.PI
-    };
-  }
+  const S = { x: 632, y: 1190 };          // near shoulder: back/middle of the torso, under the head
+  const sm = (a) => { a = Math.max(0, Math.min(1, a)); return a * a * (3 - 2 * a); };
+  const mixv = (a, b, u) => a + (b - a) * u;
   function set(sel, attrs, t) { tl.set(sel, { attr: attrs }, t); }
 
-  // stroke cycle for the wrist: slow pass toward the tail, lifted return
-  function wrist(t) {
-    if (t < 0.3) return { x: 566, y: 1282 };
-    const T = 1.5, p = ((t - 0.3) % T) / T;
-    if (p < 0.72) { const q = sm(p / 0.72); return { x: 566 - 70 * q, y: 1282 + 10 * q }; }
-    const q = sm((p - 0.72) / 0.28);
-    return { x: 496 + 70 * q, y: 1292 - 28 * Math.sin(Math.PI * q) - 10 * q };
+  // ---- hand-job keyframes: wrist target, bow (elbow side), hand roll
+  function job(t) {
+    if (t < 2.2) {                                    // A: stroke her back
+      const T = 1.5, p = ((t - 0.2) % T + T) % T / T;
+      let x, y;
+      if (t < 0.2) { x = 572; y = 1282; }
+      else if (p < 0.72) { const q = sm(p / 0.72); x = 572 - 70 * q; y = 1282 + 10 * q; }
+      else { const q = sm((p - 0.72) / 0.28); x = 502 + 70 * q; y = 1292 - 26 * Math.sin(Math.PI * q) - 10 * q; }
+      return { x, y, bow: -0.16, roll: 8 };
+    }
+    if (t < 4.0) {                                    // B: pat the empty lap
+      const u = t - 2.2, ph = (u % 0.6) / 0.6;
+      const lift = Math.sin(Math.PI * ph) ** 0.8;
+      const k = sm(u / 0.5);
+      const x = mixv(540, 520, k), y = mixv(1296, 1352, k) - 34 * lift * k;
+      return { x, y, bow: -0.2, roll: 4 };
+    }
+    const u = t - 4.0;                                // C: make room (open hand held out, gentle bob)
+    const k = sm(u / 0.6);
+    return { x: mixv(520, 470, k), y: mixv(1352, 1262, k) + 5 * Math.sin(u * 4.5) * k, bow: -0.18,
+             roll: mixv(4, 34, k) };
+  }
+
+  function buildArm(W, bow) {
+    const dx = W.x - S.x, dy = W.y - S.y, d = Math.hypot(dx, dy);
+    const nx = -dy / d, ny = dx / d;
+    const C = { x: (S.x + W.x) / 2 + nx * bow * d, y: (S.y + W.y) / 2 + ny * bow * d };
+    const N = 22, L = [], R = [];
+    let tan = { x: 0, y: 1 };
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, v = 1 - u;
+      const px = v * v * S.x + 2 * v * u * C.x + u * u * W.x;
+      const py = v * v * S.y + 2 * v * u * C.y + u * u * W.y;
+      let tx = 2 * v * (C.x - S.x) + 2 * u * (W.x - C.x), ty = 2 * v * (C.y - S.y) + 2 * u * (W.y - C.y);
+      const tl_ = Math.hypot(tx, ty) || 1; tx /= tl_; ty /= tl_; tan = { x: tx, y: ty };
+      const w = mixv(84, 62, Math.pow(u, 0.8)) / 2;
+      L.push([px - ty * w, py + tx * w]); R.push([px + ty * w, py - tx * w]);
+    }
+    const f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    let dstr = 'M' + f(L[0]);
+    for (let i = 1; i <= N; i++) dstr += ' L' + f(L[i]);
+    for (let i = N; i >= 0; i--) dstr += ' L' + f(R[i]);
+    dstr += ' Z';
+    return { d: dstr, ang: Math.atan2(-tan.x, tan.y) * 180 / Math.PI };
   }
 
   for (let i = 0; i <= FPS * DUR; i++) {
     const t = i / FPS;
-    const w = wrist(t);
-    const a = ik(w.x, w.y);
-    const rel = a.f2 - a.f1;
-    const roll = 10 + 6 * Math.sin(t * 4.2);
-    for (const k of ['I', 'F']) {
-      set('#u' + k, { transform: `translate(${S.x} ${S.y}) rotate(${a.f1.toFixed(2)})` }, t);
-      set('#f' + k, { transform: `translate(0 ${L1}) rotate(${rel.toFixed(2)})` }, t);
-      set('#h' + k, { transform: `translate(0 ${L2}) rotate(${roll.toFixed(2)})` }, t);
-    }
+    const j = job(t);
+    const A = buildArm({ x: j.x, y: j.y }, j.bow);
+    set('#armInk', { d: A.d }, t);
+    set('#armFill', { d: A.d }, t);
+    const tr = `translate(${j.x.toFixed(1)} ${j.y.toFixed(1)}) rotate(${(A.ang + j.roll).toFixed(2)}) translate(0 -8)`;
+    set('#handInk', { transform: tr }, t);
+    set('#handFill', { transform: tr }, t);
+
     const b = Math.sin(t * Math.PI * 2 / 3.6);
     set('#torsoG', { transform: `translate(0 ${(-2 * b).toFixed(2)})` }, t);
     const cb = Math.sin(t * Math.PI * 2 / 2.6);
     set('#catBody', { transform: `translate(470 1460) scale(${(1 + 0.012 * cb).toFixed(4)} ${(1 + 0.03 * cb).toFixed(4)}) translate(-470 -1460)` }, t);
     set('#catTail', { transform: `rotate(${(7 * Math.sin(t * 2.4 - 0.6)).toFixed(2)} 346 1352)` }, t);
-    const nod = 2.5 * Math.sin(t * 4.2 + 0.5);
-    set('#catHead', { transform: `translate(625 1317) rotate(${(4 + nod).toFixed(2)})` }, t);
-    const tilt = -1.6 + 1.2 * Math.sin(t * 1.1);
+    set('#catHead', { transform: `translate(625 1317) rotate(${(4 + 2.5 * Math.sin(t * 4.2 + 0.5)).toFixed(2)})` }, t);
+    set('#cat', { opacity: t < 2.1 ? 1 : (t < 2.4 ? (1 - (t - 2.1) / 0.3).toFixed(3) : 0) }, t);
+
+    // head looks down at the lap in B/C
+    const look = sm((t - 2.1) / 0.5);
+    const tilt = -1.6 + 1.2 * Math.sin(t * 1.1) - 2 * look;
     set('#headG', { transform: `rotate(${tilt.toFixed(2)} 585 1160)` }, t);
-    const d = Math.abs(t - 3.4), blink = d < 0.09 ? 1 - d / 0.09 : 0;
-    const sy = (1 - 0.9 * blink).toFixed(3);
-    set('#eyeL', { transform: `translate(412 1065) scale(0.86 ${sy})` }, t);
-    set('#eyeR', { transform: `translate(540 1065) scale(1 ${sy})` }, t);
-    set('#mouth', { d: `M451 1090 Q471 ${(1112 + 2 * Math.sin(t * 1.1)).toFixed(1)} 491 1090` }, t);
+    const d2 = Math.abs(t - 1.2), blink = d2 < 0.09 ? 1 - d2 / 0.09 : 0;
+    const sy = (1 - 0.9 * blink).toFixed(3), ey = (1065 + 14 * look).toFixed(1);
+    set('#eyeL', { transform: `translate(412 ${ey}) scale(0.86 ${sy})` }, t);
+    set('#eyeR', { transform: `translate(540 ${ey}) scale(1 ${sy})` }, t);
+    const my = 1090 + 14 * look, mc = 1112 - 22 * look;
+    set('#mouth', { d: `M451 ${my.toFixed(1)} Q471 ${mc.toFixed(1)} 491 ${my.toFixed(1)}` }, t);
+    set('#tearL', { transform: `translate(0 ${(14 * look).toFixed(1)})` }, t);
+    set('#tearR', { transform: `translate(0 ${(14 * look).toFixed(1)})` }, t);
   }
   window.__timelines = window.__timelines || {};
   window.__timelines["main"] = tl;
