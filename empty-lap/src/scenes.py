@@ -81,9 +81,9 @@ def cat_base(t):
 def cat_point(K, local):
     """World position of a point given in the cat's body frame (before flip)."""
     st, lie, curl, cr = K.get('stretch', 0), K.get('lie', 0), K.get('curl', 0), K.get('crouch', 0)
-    rx = 122 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
-    ry = 84 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr)
-    legL = 46 * (1 - max(lie, curl)) * (1 - 0.75 * cr) * (1 - 0.3 * st) + 26 * K.get('dangle', 0)
+    rx = 126 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
+    ry = 88 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr)
+    legL = 36 * (1 - clamp(max(lie, curl) / 0.45)) * (1 - 0.75 * cr) * (1 - 0.3 * st) + 26 * K.get('dangle', 0)
     cy = -(legL + ry - 8)
     px, py = local[0] * rx, cy + local[1] * ry
     pv = (-rx * 0.55, 0.0)

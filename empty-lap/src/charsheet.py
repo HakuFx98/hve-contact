@@ -55,7 +55,7 @@ def main(out):
     y = 50
     d.text((60, y), "THE EMPTY LAP  —  Character Model Sheet  ·  Ep. 001", font=font(64, True), fill=(240, 240, 240))
     y += 90
-    d.text((60, y), "Matched to the supplied reference. Every pose below is rendered by the same rig used for the film.",
+    d.text((60, y), "Matched to the supplied reference + the ChatGPT sheet (arm construction, line weight, chubbier cat). Every pose below is rendered by the same rig used for the film.",
            font=font(34), fill=(170, 170, 175))
     y += 80
 
@@ -85,11 +85,11 @@ def main(out):
     # specs text
     sx = 1560
     specs = [
-        ("Proportions", ["Head ≈ 1.0 × body height", "Head radius 224 · body 122×236", "Cat head ≈ 0.4 × his head"]),
-        ("Line & shading", ["Ink #222226, 3.6 px (thin)", "No inner shading — flat white", "Gray rim #ADADB0, offset ↘",
+        ("Proportions", ["Head ≈ 1.0 × body height", "Head radius 224 · body 122×236", "Cat: big round head, short stub legs"]),
+        ("Line & shading", ["Ink #222226, 5 px (bolder, as in ChatGPT sheet)", "No inner shading — flat white", "Gray rim #ADADB0, offset ↘",
                             "Head rim shows top + right"]),
         ("Face", ["Dot eyes, tiny highlight, low on face", "Blue drop under each eye", "Small 'u' smile"]),
-        ("Arms & hands", ["Soft arms, no outline at shoulder", "Arm flows into mitten, no wrist line",
+        ("Arms & hands", ["Arms = open lines fading into torso", "Shoulder sits at the BACK of the torso",
                           "Near mitten big · far hand tiny nub"]),
         ("World", ["Black void · white box stool", "Only light & a far window change"]),
     ]
@@ -139,7 +139,7 @@ def main(out):
                                     yaw=-0.55, mouth=0.2), None, None),
         ("make room", dict(near_hand=(372, 1236), near_hand_ang=-2.5, near_style='rest', near_bow=-0.10,
                            yaw=-0.62, mouth=0.42, eye_scale=1.08), None, None),
-        ("stroke her back", dict(near_hand=(548, 1290), near_hand_ang=2.3, near_style='curl', mouth=0.9),
+        ("stroke her back", dict(near_hand=(496, 1300), near_hand_ang=2.3, near_style='curl', mouth=0.9),
          cat_on_lap(), None),
         ("scratch her head", dict(near_hand=(596, 1236), near_hand_ang=2.0, near_style='curl', near_hr=34,
                                   mouth=1.0, yaw=-0.3, pitch=0.12), cat_on_lap(head_tilt=0.22, lie=0.6), None),
@@ -149,7 +149,7 @@ def main(out):
          cat_floor(x=276, rot=0.85, jump=0.5, ear_down=0.5, head_tilt=0.1), None),
         ("pick up the bell", dict(lean=0.10, yaw=0.45, pitch=0.3, far_hand=(852, 1462), far_style='grip',
                                   far_hr=24, far_hand_ang=1.4, mouth=-0.35, tear=1.0), None, 'hand'),
-        ("holding the empty space (ending)", dict(near_hand=(548, 1290), near_hand_ang=2.3, near_style='curl',
+        ("holding the empty space (ending)", dict(near_hand=(496, 1300), near_hand_ang=2.3, near_style='curl',
                                      far_hand=(640, 1418), far_hand_ang=3.0, far_style='cup', far_hr=24,
                                      far_bow=-0.25, blink=1.0, pitch=0.30, mouth=0.18, head_tilt=-0.06,
                                      tear=1.0), None, 'lap'),

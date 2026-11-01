@@ -15,7 +15,7 @@ GRAY = (0.68, 0.68, 0.69)        # offset shadow, sampled from the reference (17
 FARW = (0.90, 0.90, 0.91)        # far-side limbs
 BLUE = (0.36, 0.62, 0.95)        # tear marks (reference ~ (80,150,240))
 TEARC = (0.40, 0.66, 0.98)
-LW = 3.6
+LW = 5.0
 SH = (13.0, 11.0)                # shadow offset (down-right, as in reference)
 STYLE = {'shadows': True}        # switched off for the translucent memory cat
 
@@ -420,13 +420,17 @@ def draw_arm(ctx, s, hand, bow, w, hr, fill=WHITE, t=0.0, mitten=0.0, hand_ang=N
     if hand_ang is None:
         hand_ang = math.atan2(p[1] - pts[-4][1], p[0] - pts[-4][0])
     hp, tb = mitten_pts(p, hand_ang, hr, style, thumb, t, seed)
-    k0 = int(len(pts) * blend)          # outline starts here (shoulder blends into body)
     body = _offset_poly(pts, widths)
-    ink_arm = _offset_poly(pts[k0:], widths[k0:], LW) if k0 < len(pts) - 2 else None
-
-    def blob(poly, extra_r=0.0):
-        path(ctx, poly)
-        ctx.fill()
+    n = len(pts)
+    L, R = [], []
+    for q in range(n):
+        a = pts[max(0, q - 1)]
+        b = pts[min(n - 1, q + 1)]
+        ddx, ddy = b[0] - a[0], b[1] - a[1]
+        dd = math.hypot(ddx, ddy) or 1.0
+        nnx, nny = -ddy / dd, ddx / dd
+        L.append((pts[q][0] + nnx * widths[q] / 2, pts[q][1] + nny * widths[q] / 2))
+        R.append((pts[q][0] - nnx * widths[q] / 2, pts[q][1] - nny * widths[q] / 2))
 
     def dil(ptsl, e):
         cx = sum(x for x, _ in ptsl) / len(ptsl)
@@ -443,21 +447,35 @@ def draw_arm(ctx, s, hand, bow, w, hr, fill=WHITE, t=0.0, mitten=0.0, hand_ang=N
         for poly in (body[len(body) // 6:], hp):
             path(ctx, [(x + SH[0], y + SH[1]) for x, y in poly])
             ctx.fill()
-    # ink pass (outer contour only)
+    # arm body (white, same as torso) then open ink lines that fade out toward the shoulder
+    ctx.set_source_rgb(*fill)
+    path(ctx, body)
+    ctx.fill()
     ctx.set_source_rgb(*INK)
-    if ink_arm:
-        blob(ink_arm)
-    blob(dil(hp, LW))
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    for edge in (L, R):
+        for q in range(1, n):
+            u = q / (n - 1)
+            ramp = clamp((u - blend * 0.35) / 0.55)
+            if ramp <= 0.02:
+                continue
+            ctx.set_line_width(LW * ramp ** 0.8)
+            ctx.move_to(*edge[q - 1])
+            ctx.line_to(*edge[q])
+            ctx.stroke()
+    # hand: closed soft mitten
+    ctx.set_source_rgb(*INK)
+    path(ctx, dil(hp, LW / 2))
+    ctx.fill()
     if tb:
-        ctx.arc(tb[0], tb[1], tb[2] + LW, 0, 2 * math.pi)
+        ctx.arc(tb[0], tb[1], tb[2] + LW / 2, 0, 2 * math.pi)
         ctx.fill()
-    # fill pass
     ctx.set_source_rgb(*fill)
     if tb:
-        ctx.arc(tb[0], tb[1], tb[2], 0, 2 * math.pi)
+        ctx.arc(tb[0], tb[1], tb[2] - LW / 2, 0, 2 * math.pi)
         ctx.fill()
-    blob(body)
-    blob(hp)
+    path(ctx, hp)
+    ctx.fill()
     # little finger-fold line on curled / cupped hands (reference detail)
     if style in ('curl', 'cup'):
         fa = hand_ang + thumb * 0.9
@@ -518,9 +536,9 @@ def draw_cat(ctx, K, t):
     gait = K.get('gait', 0.0)
     ph = K.get('phase', 0.0)
     br = math.sin(K.get('breath', t * 2.6)) * K.get('breath_amp', 1.0)
-    rx = 122 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
-    ry = 84 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr) * (1 + 0.025 * br)
-    legL = 46 * (1 - clamp(max(lie, curl) / 0.45)) * (1 - 0.75 * cr) * (1 - 0.3 * st) + 26 * dg
+    rx = 126 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
+    ry = 88 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr) * (1 + 0.025 * br)
+    legL = 36 * (1 - clamp(max(lie, curl) / 0.45)) * (1 - 0.75 * cr) * (1 - 0.3 * st) + 26 * dg
     bob = K.get('bob', 0.0)
     cx = 0.0
     cy = -(legL + ry - 8) - bob
@@ -623,7 +641,7 @@ def draw_cat(ctx, K, t):
         tube(ctx, tp, 32, shadow=True)
 
     # head
-    hxs, hys = rx * 0.92, -ry * 0.78
+    hxs, hys = rx * 0.92, -ry * 0.74
     hxl, hyl = rx * 1.08, -ry * 0.25     # lying (reference pose)
     hxc, hyc = rx * 0.82, ry * 0.05      # curled asleep
     hxt, hyt = rx * 1.05, -ry * 0.25     # stretch
@@ -631,7 +649,7 @@ def draw_cat(ctx, K, t):
     hy = lerp(lerp(lerp(hys, hyl, lie), hyc, curl), hyt, st) + 16 * cr + K.get('head_dy', 0.0)
     hx += cx
     hy += cy
-    hr = 80.0
+    hr = 92.0
     ha = -K.get('head_tilt', 0.0) + 0.18 * curl
     ear_tw = K.get('ear', 0.0)
     ear_dn = K.get('ear_down', 0.0)
@@ -728,12 +746,12 @@ def draw_cat(ctx, K, t):
 def cat_head_world(K):
     """Approximate world position of the cat's head (for hands to touch)."""
     curl, lie, st, cr = K.get('curl', 0), K.get('lie', 0), K.get('stretch', 0), K.get('crouch', 0)
-    rx = 122 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
-    ry = 84 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr)
-    legL = 46 * (1 - clamp(max(lie, curl) / 0.45)) * (1 - 0.75 * cr) * (1 - 0.3 * st)
+    rx = 126 * (1 + 0.16 * st) * (1 + 0.14 * lie - 0.10 * curl) * (1 + 0.05 * cr)
+    ry = 88 * (1 - 0.10 * st) * (1 + 0.30 * lie + 0.25 * curl) * (1 - 0.10 * cr)
+    legL = 36 * (1 - clamp(max(lie, curl) / 0.45)) * (1 - 0.75 * cr) * (1 - 0.3 * st)
     cy = -(legL + ry - 8)
     hx = lerp(lerp(lerp(rx * 0.92, rx * 1.08, lie), rx * 0.82, curl), rx * 1.05, st)
-    hy = lerp(lerp(lerp(-ry * 0.78, -ry * 0.25, lie), ry * 0.05, curl), -ry * 0.25, st)
+    hy = lerp(lerp(lerp(-ry * 0.74, -ry * 0.25, lie), ry * 0.05, curl), -ry * 0.25, st)
     f = K.get('face', 1)
     return (K['x'] + f * hx, K['y'] + cy + hy), (K['x'], K['y'] + cy), rx, ry
 
