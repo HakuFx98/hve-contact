@@ -58,6 +58,42 @@ Its video tools work on Linux too, for checking timing frame by frame:
 bash tools/rossark-motion-skill/tools/sheet.sh video.mp4 START DUR W:H:X:Y [PER_ROW] [FPS] [OUT]
 ```
 
+### take-one (`tools/take-one`)
+
+A "one line → finished short film" studio pipeline (strategist, writer, storyboard, composer,
+editor, and a fresh reviewer that scores each cut and sends it back under the bar), rendered from
+canvas code with headless Chrome + FFmpeg. Upstream: https://github.com/talsiach/take-one (MIT;
+a few music/gate files are Apache-2.0; the Take One name and logo are not licensed). Its skill
+is linked at `.claude/skills/take-one`.
+
+What it adds beyond huashu-motion:
+- **21 illustrated looks**, each with a written method (`references/styles/`): watercolor, ink wash,
+  pixel art, paper cutout, crayon storybook, riso pop, pencil test, kinetic lyric, editorial HUD,
+  dark premium, title sequence, and more.
+- Methods for voice-over, captions, vertical cuts, music videos, and optional paid image/video/voice/
+  music services. It asks before spending anything and always has a free code-only route.
+- Checks: a render gate for pops, an edge audit for things cut off by the frame, a text audit, a face audit.
+
+The two overlap (both are code-rendered film pipelines with music and QA). Rough rule: huashu-motion
+for product/launch motion graphics and talking-head packaging; take-one for illustrated or story-led
+films.
+
+```bash
+bash tools/take-one/scripts/doctor.sh
+```
+
+```bash
+bash tools/take-one/scripts/new-canvas-project.sh my-film && cd my-film && node export.mjs 60 film.mp4
+```
+
+Linux notes (upstream is tested on macOS only):
+- Scripts that live outside a film project (`assets/previews-src/snap.mjs`, the gate, the audits) need
+  `playwright-core` resolvable. `NODE_PATH` does **not** work for these ES modules. Symlink a
+  `node_modules` containing it next to the script, or set `PLAYWRIGHT_NODE_MODULES` where supported.
+- This cloud environment blocks `cdn.jsdelivr.net`, so the 3D looks that import three.js from the CDN
+  need a local copy (`npm install three@<version>` and point the import at it).
+- `scripts/matte.swift` (type behind a person) is macOS-only.
+
 ## Demos
 
 - `demos/alive-mascot`: an original mascot built with both skills (breathing, gliding gaze with

@@ -4,3 +4,6 @@
 [submodule "tools/rossark-motion-skill"]
 	path = tools/rossark-motion-skill
 	url = https://github.com/rossark0/rossark-motion-skill.git
+[submodule "tools/take-one"]
+	path = tools/take-one
+	url = https://github.com/talsiach/take-one.git
