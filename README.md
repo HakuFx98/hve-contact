@@ -94,6 +94,26 @@ Linux notes (upstream is tested on macOS only):
   need a local copy (`npm install three@<version>` and point the import at it).
 - `scripts/matte.swift` (type behind a person) is macOS-only.
 
+### reanimate (`tools/reanimate`)
+
+Reverse-engineers an animation from a live site, screen recording, mp4/mov/webm, gif or Lottie file. It
+films the reference, writes a motion spec, rebuilds it in your stack, films the rebuild the same way, and
+compares the two frame by frame (timing, easing, pixels) until they match. It also traces canvas, WebGL and
+three.js scenes. Upstream: https://github.com/NiazMorshed2007/reanimate (MIT). Its skill is linked at
+`.claude/skills/reanimate`. Use it for "make our video move like this reference."
+
+Needs [Bun](https://bun.sh). In this environment, run our setup helper rather than upstream's `setup.sh`.
+Upstream pins Playwright 1.64.1, which would download another Chromium (~250 MB). The helper matches
+Playwright to the Chromium already installed and leaves the submodule's files unchanged:
+
+```bash
+bash scripts/setup-reanimate.sh
+```
+
+Lesson from the demo: capture the reference and the rebuild through the same pipeline. If the reference is
+an MP4, encode the rebuild's frames to MP4 too before comparing. Otherwise compression changes what counts as
+motion and the timing check reports errors that aren't there.
+
 ## Demos
 
 - `demos/alive-mascot`: an original mascot built with both skills (breathing, gliding gaze with
@@ -103,3 +123,5 @@ Linux notes (upstream is tested on macOS only):
 ```bash
 cd demos/alive-mascot && node ../../tools/huashu-motion/cli/om.js sound && node ../../tools/huashu-motion/cli/om.js render
 ```
+- `demos/reanimate-title-clone`: huashu-motion's GSAP title reveal rebuilt in pure CSS and verified with
+  reanimate (timing within one frame, 1.05 % of pixels differ). Spec and rounds are in `spec.md`.

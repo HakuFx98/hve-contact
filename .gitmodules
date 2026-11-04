@@ -7,3 +7,6 @@
 [submodule "tools/take-one"]
 	path = tools/take-one
 	url = https://github.com/talsiach/take-one.git
+[submodule "tools/reanimate"]
+	path = tools/reanimate
+	url = https://github.com/NiazMorshed2007/reanimate.git
