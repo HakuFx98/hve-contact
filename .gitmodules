@@ -1,3 +1,6 @@
 [submodule "tools/huashu-motion"]
 	path = tools/huashu-motion
 	url = https://github.com/alchaincyf/huashu-motion.git
+[submodule "tools/rossark-motion-skill"]
+	path = tools/rossark-motion-skill
+	url = https://github.com/rossark0/rossark-motion-skill.git

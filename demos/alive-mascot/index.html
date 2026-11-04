@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[
+  {"id":"kicker","type":"string","label":"Kicker","default":"WEB-MOTION × HUASHU-MOTION"},
+  {"id":"title","type":"string","label":"Title","default":"Make it feel alive."},
+  {"id":"subtitle","type":"string","label":"Subtitle","default":"One clock · real pivots · follow-through · idle life that never stops"},
+  {"id":"accent","type":"color","label":"Accent","default":"#ff6b3d"},
+  {"id":"body","type":"color","label":"Mascot","default":"#5b8def"},
+  {"id":"paper","type":"color","label":"Paper","default":"#f4efe6"},
+  {"id":"ink","type":"color","label":"Ink","default":"#1d1b18"},
+  {"id":"endHold","type":"number","label":"End hold (s)","default":1.2,"min":0,"max":5,"step":0.1,"group":"Timing"}
+]'>
+<head>
+<meta charset="utf-8">
+<title>alive mascot · demo</title>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/om.js"></script>
+<script src="vendor/motion.js"></script>
+<style id="om-fonts">
+@font-face { font-family: "Noto Sans SC"; src: url("assets/fonts/NotoSansSC-500.woff") format("woff"); font-weight: 500; }
+@font-face { font-family: "Noto Sans SC"; src: url("assets/fonts/NotoSansSC-900.woff") format("woff"); font-weight: 900; }
+</style>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  #film { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink);
+          font-family: "Noto Sans SC", sans-serif; font-weight: 500; }
+  .glow { position: absolute; inset: 0; background:
+      radial-gradient(900px 700px at 68% 55%, #ffffffb0, transparent 65%),
+      radial-gradient(1200px 600px at 10% 110%, #00000012, transparent 60%); }
+  #stage { position: absolute; inset: 0; }
+  .copy { position: absolute; left: 150px; top: 330px; width: 820px; }
+  .kicker { font-size: 24px; letter-spacing: 8px; color: #c2410c; }
+  .title { margin: 18px 0 0; font-size: 116px; line-height: 1.02; letter-spacing: -4px; font-weight: 900; }
+  .title .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 8px; margin-right: 26px; }
+  .title .w span { display: inline-block; }
+  .subtitle { margin-top: 34px; font-size: 34px; line-height: 1.45; opacity: .7; width: 700px; }
+</style>
+</head>
+<body>
+<div id="film" data-composition-id="film" data-width="1920" data-height="1080" data-om-signature="bottom-left">
+  <audio id="om-sound" src="assets/sound.wav" data-start="0" data-duration="10.8" data-track-index="8" data-volume="1"></audio>
+  <div class="glow"></div>
+
+  <section class="copy" id="s-copy">
+    <div class="kicker" data-om-id="kicker" data-var-text="kicker">WEB-MOTION × HUASHU-MOTION</div>
+    <h1 class="title" data-om-id="title" data-om-var="title"></h1>
+    <div class="subtitle" data-om-id="subtitle" data-var-text="subtitle"></div>
+  </section>
+
+  <!-- The mascot. Every moving part is its own group, rotated round its real pivot. -->
+  <svg id="stage" viewBox="0 0 1920 1080" data-om-id="mascot">
+    <defs>
+      <clipPath id="eyeL"><circle cx="-52" cy="-34" r="30"/></clipPath>
+      <clipPath id="eyeR"><circle cx="52" cy="-34" r="30"/></clipPath>
+    </defs>
+
+    <!-- sparkle the mascot watches -->
+    <g id="spark"><path d="M0-26 C3-6 6-3 26 0 C6 3 3 6 0 26 C-3 6-6 3-26 0 C-6-3-3-6 0-26Z" style="fill:var(--accent)"/></g>
+
+    <g transform="translate(1340 820)">
+      <ellipse id="shadow" cx="0" cy="8" rx="170" ry="22" fill="#000" opacity=".12"/>
+      <g id="hop">
+        <!-- feet stay planted unless it hops -->
+        <ellipse cx="-62" cy="0" rx="44" ry="20" style="fill:var(--body);filter:brightness(.82)"/>
+        <ellipse cx="62"  cy="0" rx="44" ry="20" style="fill:var(--body);filter:brightness(.82)"/>
+        <g id="body"><!-- pivot: bottom centre (0,0) -->
+          <g transform="translate(0 -170)">
+            <!-- antenna: two segments, each later than the last -->
+            <g id="ant1" transform="translate(0 -150)">
+              <rect x="-5" y="-60" width="10" height="62" rx="5" style="fill:var(--ink)"/>
+              <g id="ant2" transform="translate(0 -58)">
+                <rect x="-4" y="-44" width="8" height="46" rx="4" style="fill:var(--ink)"/>
+                <circle id="bulb" cx="0" cy="-50" r="17" style="fill:var(--accent)"/>
+              </g>
+            </g>
+            <!-- arms: pivot at the shoulder -->
+            <g id="armL" transform="translate(-150 20)"><rect x="-16" y="-6" width="32" height="96" rx="16" style="fill:var(--body);filter:brightness(.9)"/></g>
+            <g id="armR" transform="translate(150 20)"><rect x="-16" y="-6" width="32" height="96" rx="16" style="fill:var(--body);filter:brightness(.9)"/></g>
+            <!-- one outline for the whole body: no seams -->
+            <path d="M0-160 C120-160 168-90 168 10 C168 120 110 170 0 170 C-110 170-168 120-168 10 C-168-90-120-160 0-160Z" style="fill:var(--body)"/>
+            <ellipse cx="0" cy="70" rx="86" ry="58" fill="#fff" opacity=".16"/>
+            <g id="face">
+              <circle cx="-52" cy="-34" r="28" fill="#fff"/>
+              <circle cx="52"  cy="-34" r="28" fill="#fff"/>
+              <circle id="pupL" cx="-52" cy="-34" r="13" style="fill:var(--ink)"/>
+              <circle id="pupR" cx="52"  cy="-34" r="13" style="fill:var(--ink)"/>
+              <!-- lids are clipped 2 units outside the eye white, so no ring shows -->
+              <rect id="lidL" x="-84" y="-66" width="64" height="0" style="fill:var(--body)" clip-path="url(#eyeL)"/>
+              <rect id="lidR" x="20"  y="-66" width="64" height="0" style="fill:var(--body)" clip-path="url(#eyeR)"/>
+              <path id="lashL" d="" fill="none" style="stroke:var(--ink)" stroke-width="6" stroke-linecap="round"/>
+              <path id="lashR" d="" fill="none" style="stroke:var(--ink)" stroke-width="6" stroke-linecap="round"/>
+              <path id="mouth" d="" fill="none" style="stroke:var(--ink)" stroke-width="9" stroke-linecap="round"/>
+              <circle cx="-96" cy="18" r="16" style="fill:var(--accent)" opacity=".28"/>
+              <circle cx="96"  cy="18" r="16" style="fill:var(--accent)" opacity=".28"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<script>
+  const V = OM.vars();
+  const { track, flow, seg, wave, bell, mix } = Motion;
+  const $ = (id) => document.getElementById(id);
+  const esc = (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c] || c;
+
+  document.querySelector('.subtitle').textContent = V.subtitle;
+  document.querySelector('.title').innerHTML =
+    V.title.split(' ').map((w) => `<span class="w"><span>${[...w].map(esc).join('')}</span></span>`).join('');
+
+  const D = 9.6;                   // seconds of acting; the end hold follows
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } });
+
+  // --- copy: GSAP for the type ---
+  tl.addLabel('scene:hello', 0)
+    .fromTo('.kicker', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: .7 }, .3)
+    .fromTo('.title .w span', { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: .12 }, .45)
+    .fromTo('.subtitle', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .8 }, 1.2);
+  tl.addLabel('scene:sparkle', 3.4).addLabel('scene:wave', 6.0).addLabel('scene:hop', 8.0);
+
+  // --- the mascot: everything is a pure function of one clock (ms) ---
+  const blink = (t, at) => track(t, [[at, 0], [at + 90, 1], [at + 150, 1], [at + 290, 0, 'out']]);
+  const R = (deg) => `rotate(${deg})`;
+
+  function draw(s) {
+    const t = s * 1000;
+
+    // idle life that never stops: breathing (small amplitude, slow)
+    const br = wave(t, 3600);
+    const lean = flow(t, [[0, 0], [6000, 0], [6500, -3], [7900, -3], [8300, 0], [9600, 0]]);
+
+    // the hop: anticipation squash → air → landing squash that keeps the volume
+    const hy = flow(t, [[0, 0], [8150, 0], [8480, -84], [8700, 0], [9600, 0]]);
+    const sq = flow(t, [[0, 1], [7950, 1], [8150, .9], [8380, 1.07], [8650, 1], [8740, .9], [9050, 1], [9600, 1]]);
+    const sy = sq * (1 + .012 * br), sx = (2 - sq) * (1 - .006 * br);
+    $('hop').setAttribute('transform', `translate(0 ${hy})`);
+    $('body').setAttribute('transform', `${R(lean)} scale(${sx} ${sy})`);
+    const air = -hy / 84;
+    $('shadow').setAttribute('transform', `scale(${1 - .3 * air} 1)`);
+    $('shadow').setAttribute('opacity', .12 - .05 * air);
+
+    // the sparkle drifts in from the right on a smooth path; she follows it
+    const sp = seg(t, 3300, 5800, 'inOut');
+    const sxp = mix(1880, 1610, sp) + 40 * Math.sin(sp * Math.PI * 1.5);
+    const syp = mix(260, 330, sp) - 60 * Math.sin(sp * Math.PI);
+    const show = t < 3300 || t > 6400 ? 0 : bell((t - 3300) / 3100);
+    $('spark').setAttribute('transform', `translate(${sxp} ${syp}) rotate(${t / 12}) scale(${.6 + .4 * show})`);
+    $('spark').setAttribute('opacity', Math.min(1, show * 1.6));
+
+    // gaze: glides, never teleports (flow through looks: title → sparkle → you)
+    const gx = flow(t, [[0, 0], [1100, 0], [1700, -1], [3200, -1], [3900, .9], [5800, .75], [6300, 0], [9600, 0]]);
+    const gy = flow(t, [[0, 0], [1100, 0], [1700, .2], [3200, .2], [3900, -.9], [5800, -.6], [6300, 0], [9600, 0]]);
+    for (const [id, cx] of [['pupL', -52], ['pupR', 52]]) {
+      $(id).setAttribute('cx', cx + 11 * gx);
+      $(id).setAttribute('cy', -34 + 10 * gy);
+    }
+    // the head (here: the face) follows the eyes a beat later
+    const hx = flow(t, [[0, 0], [1300, 0], [2000, -1], [3300, -1], [4200, .9], [5900, .75], [6500, 0], [9600, 0]]);
+    $('face').setAttribute('transform', `translate(${9 * hx} ${-4 * Math.abs(hx)})`);
+
+    // blinks: long enough to read (≈290 ms), one paired with each change of gaze
+    const b = Math.max(blink(t, 1250), blink(t, 3650), blink(t, 6200), blink(t, 9100));
+    $('lidL').setAttribute('height', 64 * b);
+    $('lidR').setAttribute('height', 64 * b);
+    // the lid's edge: a line that rides down with the lid and curves into a closed-eye smile
+    for (const [id, cx] of [['lashL', -52], ['lashR', 52]]) {
+      const y = Math.min(-66 + 64 * b, -34), half = Math.sqrt(Math.max(0, 784 - (y + 34) ** 2));
+      $(id).setAttribute('d', b < .02 ? '' : `M${cx - half} ${y} Q${cx} ${y + 10 * b} ${cx + half} ${y}`);
+    }
+
+    // mouth: a calm smile that opens into a grin for the wave
+    const grin = seg(t, 6100, 6600) - seg(t, 9100, 9500);
+    const w = mix(26, 40, grin), d = mix(10, 30, grin);
+    $('mouth').setAttribute('d', `M${-w} 30 Q0 ${30 + 2 * d} ${w} 30`);
+
+    // arms: idle sway, then the right arm waves (flow: no dead stops between swings)
+    const armL = 14 + 3 * wave(t, 3600, .1) - 22 * (hy / -84);
+    const armR = flow(t, [[0, -14], [6100, -14], [6550, -150], [6850, -120], [7150, -152], [7450, -120], [7750, -150], [8150, -14], [9600, -14]])
+      - 3 * wave(t, 3600, .1) + 22 * (hy / -84);
+    $('armL').setAttribute('transform', `translate(-150 20) ${R(armL)}`);
+    $('armR').setAttribute('transform', `translate(150 20) ${R(armR)}`);
+
+    // antenna: same wave, each segment later and larger; it trails the lean and the hop
+    const vy = flow(t + 60, [[0, 0], [8150, 0], [8480, -84], [8700, 0], [9600, 0]]) - hy;
+    const a1 = 4 * wave(t, 2600) - lean * 1.5 + .25 * vy;
+    const a2 = 7 * wave(t, 2600, -.15) - lean * 2.5 + .45 * vy;
+    $('ant1').setAttribute('transform', `translate(0 -150) ${R(a1)}`);
+    $('ant2').setAttribute('transform', `translate(0 -58) ${R(a2)}`);
+    $('bulb').setAttribute('r', 17 + 2 * bell((t % 2600) / 2600));
+  }
+
+  OM.clock(tl, draw, D);
+  OM.region('mascot', () => [1150, 400, 380, 440], 'mascot');
+
+  // sound on the frames that land
+  OM.music({ product: 'consumer', brand: 'alive' });
+  OM.sfx('pop', .45, { note: 1 }); OM.sfx('pop', .57, { note: 3 }); OM.sfx('pop', .69, { note: 5 });
+  OM.sfx('sparkle', 3.9); OM.sfx('whoosh', 6.55, { gain: .5 });
+  OM.sfx('boing', 8.4); OM.sfx('thud', 8.7, { gain: .6 });
+
+  tl.to({}, { duration: V.endHold }, D);
+  window.__timelines['film'] = tl;
+</script>
+</body>
+</html>
