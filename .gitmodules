@@ -1,0 +1,3 @@
+[submodule "tools/huashu-motion"]
+	path = tools/huashu-motion
+	url = https://github.com/alchaincyf/huashu-motion.git
