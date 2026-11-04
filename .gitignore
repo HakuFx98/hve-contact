@@ -1,4 +1,4 @@
 out/
 .om/
 my-film/
-assets/sound.wav
+**/assets/sound.wav
