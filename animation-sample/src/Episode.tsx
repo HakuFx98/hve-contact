@@ -4,7 +4,7 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette, DepthOfField, HueSaturation } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { AbsoluteFill, Easing, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { Toon, Face, Pose } from './Toon';
+import { Toon, Face, Pose, STRIDE } from './Toon';
 import { Rooftop, Dust } from './City';
 
 /* ==================================================================
@@ -75,10 +75,12 @@ const Shot1: React.FC = () => {
   const f = useCurrentFrame();
   const t = f / 30;
   const k = interpolate(f, [0, 80], [0, 1], ease);
-  const kaiX = interpolate(f, [0, 80], [-2.2, 0], clamp);
+  const kaiX = interpolate(f, [0, 66], [-2.4, 0], clamp);
+  const walkAmp = interpolate(f, [0, 4, 60, 68], [0.4, 1, 1, 0], clamp);
+  const kaiRot = interpolate(f, [0, 62, 74], [Math.PI / 2 - 0.25, Math.PI / 2 - 0.25, 0.35], ease);
   return (
     <Stage cam={lerp3([-3.5, 2.4, 7.5], [-1.4, 1.9, 6.2], k)} target={[kaiX * 0.5, 1.5, 0]} focus={[kaiX, 1.8, 0]} t={t}>
-      <Toon position={[kaiX, 0, 0]} rotationY={0.9 - k * 0.6} hoodie={MINT} face="open" blink={blinkAt(f)} pose="idle" t={t} />
+      <Toon position={[kaiX, 0, 0]} rotationY={kaiRot} hoodie={MINT} face={f > 70 ? 'happy' : 'open'} blink={blinkAt(f)} pose="idle" t={t} walk={(kaiX + 2.4) / STRIDE} walkAmp={walkAmp} />
       <Toon position={[2.2, 0, -1.2]} rotationY={-0.6} hoodie={TEAL} cap="#2e2e38" face="happy" pose="wave" t={t} />
     </Stage>
   );
@@ -131,7 +133,7 @@ const Shot3: React.FC = () => {
           <meshStandardMaterial color="#ffd9b8" transparent opacity={0.85} roughness={0.1} />
         </mesh>
       ))}
-      <Toon position={[3.6, 0, -1.4]} rotationY={-0.5} hoodie={MINT} face="happy" pose="idle" t={f / 30} blink={blinkAt(f, 10)} />
+      <Toon position={[interpolate(f, [0, 90], [4.6, 2.9], clamp), 0, -1.4]} rotationY={-Math.PI / 2 + 0.3} hoodie={MINT} face="happy" pose="idle" t={f / 30} blink={blinkAt(f, 10)} walk={(4.6 - interpolate(f, [0, 90], [4.6, 2.9], clamp)) / STRIDE} walkAmp={1} />
     </Stage>
   );
 };

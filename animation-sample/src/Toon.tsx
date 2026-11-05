@@ -146,7 +146,12 @@ type Props = {
   pose?: Pose;
   t?: number; // time in seconds, drives idle/cheer motion
   lookX?: number; // turn face sideways a little
+  walk?: number; // walk-cycle phase in radians (drive it from distance travelled)
+  walkAmp?: number; // 0..1, blend walk in/out
 };
+
+/** Distance covered per radian of walk phase — use: walk = distance / STRIDE */
+export const STRIDE = 0.25;
 
 export const Toon: React.FC<Props> = ({
   position,
@@ -158,6 +163,8 @@ export const Toon: React.FC<Props> = ({
   pose = 'idle',
   t = 0,
   lookX = 0,
+  walk = 0,
+  walkAmp = 0,
 }) => {
   const faceTex = useFace(face, blink);
   const dark = useMemo(() => '#' + new THREE.Color(hoodie).multiplyScalar(0.78).getHexString(), [hoodie]);
@@ -171,7 +178,18 @@ export const Toon: React.FC<Props> = ({
     fists: [[-1.3 + pump, 0.55], [-1.3 - pump, -0.55]],
     wave: [[0.05, 0.12], [-2.5, -0.6 + Math.sin(t * 9) * 0.3]],
   };
-  const [aL, aR] = arms[pose];
+  const [aL0, aR0] = arms[pose];
+
+  // ---- walk cycle ----
+  const legSwing = Math.sin(walk) * 0.5 * walkAmp;
+  // straight legs: drop the hips so feet stay planted, plus a bouncy lift at the passing pose
+  const walkY = (0.76 * (Math.cos(legSwing) - 1) + 0.035 * Math.abs(Math.cos(walk)) * walkAmp);
+  const sway = Math.sin(walk) * 0.05 * walkAmp;
+  const lean = 0.07 * walkAmp;
+  const headLag = -Math.sin(walk - 0.6) * 0.07 * walkAmp;
+  const blendArm = (a: [number, number], swing: number): [number, number] => [a[0] * (1 - walkAmp) + swing * walkAmp, a[1] * (1 - walkAmp) + Math.sign(a[1] || 1) * 0.1 * walkAmp];
+  const aL = blendArm(aL0, legSwing * 0.9);
+  const aR = blendArm(aR0, -legSwing * 0.9);
 
   const Arm = ({ side, a }: { side: 1 | -1; a: [number, number] }) => (
     <group position={[0.3 * side, 1.3, 0]} rotation={[a[0], 0, a[1]]}>
@@ -181,11 +199,15 @@ export const Toon: React.FC<Props> = ({
   );
 
   return (
-    <group position={[position[0], position[1] + bounce, position[2]]} rotation={[0, rotationY, 0]}>
-      {/* stick legs */}
-      {[-0.1, 0.1].map((x) => (
-        <O key={x} position={[x, 0.38, 0]} g={<cylinderGeometry args={[0.045, 0.045, 0.76, 10]} />} color={BODY} thin />
+    <group position={[position[0], position[1] + bounce * (1 - walkAmp) + walkY, position[2]]} rotation={[0, rotationY, 0]}>
+      {/* stick legs, pivoting at the hip, with little rounded shoes */}
+      {[-0.1, 0.1].map((x, i) => (
+        <group key={x} position={[x, 0.76, 0]} rotation={[i === 0 ? legSwing : -legSwing, 0, 0]}>
+          <O position={[0, -0.38, 0]} g={<cylinderGeometry args={[0.045, 0.045, 0.76, 10]} />} color={BODY} thin />
+          <O position={[0, -0.75, 0.05]} scale={[1, 0.65, 1.5]} g={<sphereGeometry args={[0.07, 14, 10]} />} color={BODY} thin />
+        </group>
       ))}
+      <group rotation={[lean, 0, sway]} position={[0, 0, 0]}>
       {/* hoodie torso */}
       <O position={[0, 1.02, 0]} scale={[1, 1, 0.78]} g={<capsuleGeometry args={[0.27, 0.34, 8, 20]} />} color={hoodie} />
       {/* hood collar */}
@@ -210,7 +232,7 @@ export const Toon: React.FC<Props> = ({
       {/* stick neck */}
       <O position={[0, 1.5, 0]} g={<cylinderGeometry args={[0.035, 0.035, 0.26, 10]} />} color={BODY} thin />
       {/* head */}
-      <group position={[0, 2.02, 0]} rotation={[0, lookX, 0]}>
+      <group position={[0, 2.02, 0]} rotation={[0, lookX, headLag]}>
         <O g={<sphereGeometry args={[0.5, 64, 48]} />} color={BODY} rough={0.4}>
           <Decal position={[0, -0.02, 0.45]} rotation={[0, 0, 0]} scale={[0.62, 0.62, 0.6]} map={faceTex} />
         </O>
@@ -226,6 +248,7 @@ export const Toon: React.FC<Props> = ({
             </mesh>
           </group>
         )}
+      </group>
       </group>
     </group>
   );
