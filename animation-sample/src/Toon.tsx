@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Decal, Outlines } from '@react-three/drei';
+import { Decal } from '@react-three/drei';
 import * as THREE from 'three';
 
 /* ------------------------------------------------------------------
@@ -14,8 +14,30 @@ export type Face = 'smug' | 'happy' | 'open' | 'shock' | 'dizzy';
 export type Pose = 'idle' | 'cheer' | 'fists' | 'wave';
 
 const LINE = '#1d1430';
-const BODY = '#efe9f6'; // pale lilac-white
-const OUT = 0.018; // outline thickness
+const BODY = '#fbf8ff'; // pale lilac-white
+
+/** Inverted-hull outline: back faces pushed out along normals, drawn dark. */
+const outlineMat = (thickness: number) =>
+  new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: { c: { value: new THREE.Color(LINE) }, th: { value: thickness } },
+    vertexShader: `uniform float th; void main(){ vec3 p = position + normal * th; gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0); }`,
+    fragmentShader: `uniform vec3 c; void main(){ gl_FragColor = vec4(c,1.0); }`,
+  });
+const OUTLINE = outlineMat(0.03);
+const OUTLINE_THIN = outlineMat(0.02);
+
+/** Renders the same geometry twice: shaded body + dark outline shell. */
+const O: React.FC<{ g: React.ReactElement; color: string; rough?: number; thin?: boolean; position?: [number, number, number]; rotation?: [number, number, number]; scale?: [number, number, number]; children?: React.ReactNode }> = ({ g, color, rough, thin, children, ...tr }) => (
+  <group {...tr}>
+    <mesh castShadow>
+      {g}
+      <Mat color={color} rough={rough} />
+      {children}
+    </mesh>
+    <mesh material={thin ? OUTLINE_THIN : OUTLINE}>{g}</mesh>
+  </group>
+);
 
 const Mat: React.FC<{ color: string; rough?: number }> = ({ color, rough = 0.55 }) => (
   <meshStandardMaterial color={color} roughness={rough} metalness={0} />
@@ -153,16 +175,8 @@ export const Toon: React.FC<Props> = ({
 
   const Arm = ({ side, a }: { side: 1 | -1; a: [number, number] }) => (
     <group position={[0.3 * side, 1.3, 0]} rotation={[a[0], 0, a[1]]}>
-      <mesh position={[0, -0.24, 0]}>
-        <capsuleGeometry args={[0.09, 0.32, 6, 14]} />
-        <Mat color={hoodie} />
-        <Outlines thickness={OUT} color={LINE} />
-      </mesh>
-      <mesh position={[0, -0.5, 0]}>
-        <sphereGeometry args={[0.105, 20, 16]} />
-        <Mat color={BODY} />
-        <Outlines thickness={OUT} color={LINE} />
-      </mesh>
+      <O position={[0, -0.24, 0]} g={<capsuleGeometry args={[0.09, 0.32, 6, 14]} />} color={hoodie} />
+      <O position={[0, -0.5, 0]} g={<sphereGeometry args={[0.105, 20, 16]} />} color={BODY} />
     </group>
   );
 
@@ -170,24 +184,12 @@ export const Toon: React.FC<Props> = ({
     <group position={[position[0], position[1] + bounce, position[2]]} rotation={[0, rotationY, 0]}>
       {/* stick legs */}
       {[-0.1, 0.1].map((x) => (
-        <mesh key={x} position={[x, 0.38, 0]}>
-          <cylinderGeometry args={[0.045, 0.045, 0.76, 10]} />
-          <Mat color={BODY} />
-          <Outlines thickness={OUT} color={LINE} />
-        </mesh>
+        <O key={x} position={[x, 0.38, 0]} g={<cylinderGeometry args={[0.045, 0.045, 0.76, 10]} />} color={BODY} thin />
       ))}
       {/* hoodie torso */}
-      <mesh position={[0, 1.02, 0]} scale={[1, 1, 0.78]}>
-        <capsuleGeometry args={[0.27, 0.34, 8, 20]} />
-        <Mat color={hoodie} />
-        <Outlines thickness={OUT} color={LINE} />
-      </mesh>
+      <O position={[0, 1.02, 0]} scale={[1, 1, 0.78]} g={<capsuleGeometry args={[0.27, 0.34, 8, 20]} />} color={hoodie} />
       {/* hood collar */}
-      <mesh position={[0, 1.38, -0.03]} rotation={[Math.PI / 2 + 0.25, 0, 0]}>
-        <torusGeometry args={[0.15, 0.075, 12, 24]} />
-        <Mat color={hoodie} />
-        <Outlines thickness={OUT} color={LINE} />
-      </mesh>
+      <O position={[0, 1.38, -0.03]} rotation={[Math.PI / 2 + 0.25, 0, 0]} g={<torusGeometry args={[0.15, 0.075, 12, 24]} />} color={hoodie} thin />
       <mesh position={[0, 1.36, -0.14]} scale={[1, 0.8, 0.7]}>
         <sphereGeometry args={[0.2, 16, 12]} />
         <Mat color={dark} />
@@ -206,25 +208,17 @@ export const Toon: React.FC<Props> = ({
       <Arm side={-1} a={aL} />
       <Arm side={1} a={aR} />
       {/* stick neck */}
-      <mesh position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.035, 0.035, 0.26, 10]} />
-        <Mat color={BODY} />
-        <Outlines thickness={OUT * 0.8} color={LINE} />
-      </mesh>
+      <O position={[0, 1.5, 0]} g={<cylinderGeometry args={[0.035, 0.035, 0.26, 10]} />} color={BODY} thin />
       {/* head */}
       <group position={[0, 2.02, 0]} rotation={[0, lookX, 0]}>
-        <mesh>
-          <sphereGeometry args={[0.5, 64, 48]} />
-          <Mat color={BODY} rough={0.42} />
-          <Outlines thickness={OUT} color={LINE} />
+        <O g={<sphereGeometry args={[0.5, 64, 48]} />} color={BODY} rough={0.4}>
           <Decal position={[0, -0.02, 0.45]} rotation={[0, 0, 0]} scale={[0.62, 0.62, 0.6]} map={faceTex} />
-        </mesh>
+        </O>
         {cap && (
           <group rotation={[-0.25, 0.4, 0]}>
             <mesh position={[0, 0.12, 0]}>
-              <sphereGeometry args={[0.51, 40, 20, 0, Math.PI * 2, 0, 1.0]} />
+              <sphereGeometry args={[0.515, 40, 20, 0, Math.PI * 2, 0, 1.0]} />
               <Mat color={cap} />
-              <Outlines thickness={OUT} color={LINE} />
             </mesh>
             <mesh position={[0, 0.38, 0.36]} rotation={[0.25, 0, 0]} scale={[1, 0.12, 1]}>
               <cylinderGeometry args={[0.22, 0.22, 0.2, 24, 1, false, -Math.PI / 2, Math.PI]} />
